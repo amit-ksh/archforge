@@ -1,6 +1,6 @@
 # Ticket: Canvas foundation
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Create a model-driven architecture canvas foundation with separate editor state.

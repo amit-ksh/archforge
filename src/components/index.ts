@@ -1,2 +1,2 @@
 /** Reusable presentation primitives and canvas components. */
-export {};
+export * from "./canvas";
