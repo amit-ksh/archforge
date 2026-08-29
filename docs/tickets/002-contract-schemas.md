@@ -1,6 +1,6 @@
 # Ticket: Runtime contract schemas
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Implement versioned runtime schemas and boundary result contracts.
