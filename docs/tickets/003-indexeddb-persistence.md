@@ -1,6 +1,6 @@
 # Ticket: IndexedDB persistence
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Persist architectures locally behind an application-owned repository port.

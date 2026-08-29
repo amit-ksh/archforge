@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { ArchitectureRepositoryError } from "@/application/ports";
 import { DomainError } from "@/domain/architecture";
 
 import {
@@ -35,6 +36,14 @@ export function structuredError(
       code: error.code,
       message: error.message,
       retryable: false,
+      correlationId,
+    };
+  }
+  if (error instanceof ArchitectureRepositoryError) {
+    return {
+      code: error.code,
+      message: error.message,
+      retryable: error.retryable,
       correlationId,
     };
   }

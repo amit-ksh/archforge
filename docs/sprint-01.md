@@ -7,7 +7,7 @@ Status values are `Planned`, `In Progress`, and `Complete`. Execution is strictl
 | 0 | [000 Repository baseline](tickets/000-repository-baseline.md) | Blueprint commit | Test/typecheck tooling and module skeleton | `pnpm lint && pnpm typecheck && pnpm test && pnpm build` | Complete |
 | 1 | [001 Domain model](tickets/001-domain-model.md) | 000 | Canonical aggregate and commands | Full validation + domain tests | Complete |
 | 2 | [002 Contract schemas](tickets/002-contract-schemas.md) | 001 | Runtime schemas/result envelopes | Full validation + contract tests | Complete |
-| 3 | [003 IndexedDB persistence](tickets/003-indexeddb-persistence.md) | 002 | Repository port and adapters | Full validation + repository contract | Planned |
+| 3 | [003 IndexedDB persistence](tickets/003-indexeddb-persistence.md) | 002 | Repository port and adapters | Full validation + repository contract | Complete |
 | 4 | [004 Canvas foundation](tickets/004-canvas-foundation.md) | 003 | Model-driven canvas/editor state | Full validation + editor tests | Planned |
 | 5 | [005 Component catalog](tickets/005-component-catalog.md) | 002 | Capability/technology catalog | Full validation + catalog integrity | Planned |
 | 6 | [006 Provider catalog](tickets/006-provider-catalog.md) | 005 | AWS/Azure service catalog | Full validation + catalog integrity | Planned |
