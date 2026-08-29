@@ -1,6 +1,6 @@
 # Ticket: Repository baseline
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Turn the generated Next.js repository into a validated implementation base.
