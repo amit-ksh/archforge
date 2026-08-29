@@ -5,7 +5,7 @@ Status values are `Planned`, `In Progress`, and `Complete`. Execution is strictl
 | Order | Ticket | Dependencies | Expected output | Validation command | Status |
 | ---: | --- | --- | --- | --- | --- |
 | 0 | [000 Repository baseline](tickets/000-repository-baseline.md) | Blueprint commit | Test/typecheck tooling and module skeleton | `pnpm lint && pnpm typecheck && pnpm test && pnpm build` | Complete |
-| 1 | [001 Domain model](tickets/001-domain-model.md) | 000 | Canonical aggregate and commands | Full validation + domain tests | Planned |
+| 1 | [001 Domain model](tickets/001-domain-model.md) | 000 | Canonical aggregate and commands | Full validation + domain tests | Complete |
 | 2 | [002 Contract schemas](tickets/002-contract-schemas.md) | 001 | Runtime schemas/result envelopes | Full validation + contract tests | Planned |
 | 3 | [003 IndexedDB persistence](tickets/003-indexeddb-persistence.md) | 002 | Repository port and adapters | Full validation + repository contract | Planned |
 | 4 | [004 Canvas foundation](tickets/004-canvas-foundation.md) | 003 | Model-driven canvas/editor state | Full validation + editor tests | Planned |

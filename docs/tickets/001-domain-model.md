@@ -1,6 +1,6 @@
 # Ticket: Provider-neutral domain model
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Implement the canonical architecture aggregate and mutation commands.
