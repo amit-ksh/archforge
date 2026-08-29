@@ -17,7 +17,7 @@ ArchForge is a local-first WebMCP architecture-design web app. Use pnpm, keep pe
 1. Read the active file in `docs/tickets/` and every prerequisite it names.
 2. Read `docs/architecture.md` for boundaries, `docs/contracts.md` when changing data or tools, `docs/design-system.md` when changing UI, and `docs/webmcp.md` when changing WebMCP.
 3. Make one ticket-sized change. Preserve existing work and avoid speculative abstractions.
-4. Run `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build`. A ticket is complete only when all four pass and its acceptance criteria are met.
+4. Run `pnpm lint`, `pnpm typecheck`, and `pnpm build`. A ticket is complete only when all three pass and its non-test acceptance criteria are met.
 5. Update the ticket status and create one focused conventional commit: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, or `chore:`.
 
 ## Boundaries
@@ -35,5 +35,5 @@ Dependencies point `UI -> Features -> Application -> Domain`; WebMCP also points
 
 - Keep TypeScript strict. Use schema-first contracts and runtime validation for all external, persisted, imported, and tool input; TypeScript types alone are insufficient.
 - Application services and repository ports are typed. Failures cross boundaries as structured errors.
-- Cover domain behavior with unit tests, commands with application-service tests, WebMCP with contract tests, boundary composition with integration tests, and critical user journeys with end-to-end tests.
+- **Temporary testing policy:** Until the user explicitly asks to write tests, implement features without creating, updating, or running tests. Preserve the existing test suite and configuration. This policy overrides test requirements in existing tickets and sprint documentation.
 - Reuse semantic design tokens and existing primitives. Add a new primitive only when the design system lacks the needed behavior.
