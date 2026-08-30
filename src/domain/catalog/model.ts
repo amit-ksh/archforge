@@ -52,3 +52,41 @@ export interface ComponentCatalog {
   listTechnologies(filter?: ComponentCatalogFilter): readonly TechnologyDefinition[];
   getTechnology(id: EntityId): TechnologyDefinition | null;
 }
+
+export interface ProviderDefinition {
+  readonly id: EntityId;
+  readonly label: string;
+  readonly description: string;
+  readonly iconKey: string;
+}
+
+export type ServiceManagementModel =
+  | "serverless"
+  | "fully-managed"
+  | "managed-platform"
+  | "managed-cluster";
+
+export interface CloudServiceDefinition {
+  readonly id: EntityId;
+  readonly providerId: EntityId;
+  readonly label: string;
+  readonly description: string;
+  readonly capabilityIds: readonly EntityId[];
+  readonly compatibleTechnologyIds: readonly EntityId[];
+  readonly managementModel: ServiceManagementModel;
+  readonly managedServiceContext: string;
+  readonly tradeoffs: readonly string[];
+}
+
+export interface ProviderCatalogFilter {
+  readonly providerId?: EntityId;
+  readonly capabilityId?: EntityId;
+  readonly technologyId?: EntityId;
+}
+
+export interface ProviderCatalog {
+  listProviders(): readonly ProviderDefinition[];
+  getProvider(id: EntityId): ProviderDefinition | null;
+  listServices(filter?: ProviderCatalogFilter): readonly CloudServiceDefinition[];
+  getService(id: EntityId): CloudServiceDefinition | null;
+}

@@ -44,3 +44,36 @@ export const ComponentCatalogRecordsSchema = z.strictObject({
 export type ComponentCatalogRecords = z.infer<
   typeof ComponentCatalogRecordsSchema
 >;
+
+export const ProviderDefinitionSchema = z.strictObject({
+  id: EntityIdSchema,
+  label: z.string().trim().min(1),
+  description: z.string().trim().min(1),
+  iconKey: z.string().trim().min(1),
+});
+
+export const CloudServiceDefinitionSchema = z.strictObject({
+  id: EntityIdSchema,
+  providerId: EntityIdSchema,
+  label: z.string().trim().min(1),
+  description: z.string().trim().min(1),
+  capabilityIds: z.array(EntityIdSchema).min(1),
+  compatibleTechnologyIds: z.array(EntityIdSchema),
+  managementModel: z.enum([
+    "serverless",
+    "fully-managed",
+    "managed-platform",
+    "managed-cluster",
+  ]),
+  managedServiceContext: z.string().trim().min(1),
+  tradeoffs: z.array(z.string().trim().min(1)).min(1),
+});
+
+export const ProviderCatalogRecordsSchema = z.strictObject({
+  providers: z.array(ProviderDefinitionSchema).min(1),
+  services: z.array(CloudServiceDefinitionSchema).min(1),
+});
+
+export type ProviderCatalogRecords = z.infer<
+  typeof ProviderCatalogRecordsSchema
+>;

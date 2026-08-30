@@ -1,6 +1,6 @@
 # Ticket: AWS and Azure provider catalog
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Add representative AWS/Azure service mappings without contaminating domain primitives.
