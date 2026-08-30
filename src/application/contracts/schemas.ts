@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const CONTRACT_VERSION = 1 as const;
 
-const EntityIdSchema = z
+export const EntityIdSchema = z
   .string()
   .trim()
   .min(1)

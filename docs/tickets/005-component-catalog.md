@@ -1,6 +1,6 @@
 # Ticket: Capability and technology catalog
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Provide validated representative capability and technology catalog data.
