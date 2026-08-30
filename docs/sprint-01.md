@@ -23,7 +23,7 @@ Status values are `Planned`, `In Progress`, and `Complete`. Execution is strictl
 | 16 | [016 Architecture editor UI](tickets/016-architecture-editor-ui.md) | 008, 015 | Complete editor shell/inspector | Full validation + interaction tests | Complete |
 | 17 | [017 Requirements UI](tickets/017-requirements-ui.md) | 016 | Requirement/constraint editing | Full validation + interaction tests | Complete |
 | 18 | [018 Technology resolution UI](tickets/018-technology-resolution-ui.md) | 017 | Evidence/tradeoff resolution flow | Full validation + interaction tests | Complete |
-| 19 | [019 AI activity UI](tickets/019-ai-activity-ui.md) | 014, 015 | Observable tool activity | Full validation + activity tests | Planned |
+| 19 | [019 AI activity UI](tickets/019-ai-activity-ui.md) | 014, 015 | Observable tool activity | Full validation + activity tests | Complete |
 | 20 | [020 Design-system workflow](tickets/020-design-system-workflow.md) | 014, 019 | High-level composed WebMCP tool | Full validation + workflow tests | Planned |
 | 21 | [021 Integration tests](tickets/021-integration-tests.md) | 020 | Critical integration/E2E journeys | Full validation + `pnpm test:e2e` | Planned |
 | 22 | [022 Hackathon polish](tickets/022-hackathon-polish.md) | 021 | Accessible demo-ready MVP | All validation and E2E commands | Planned |

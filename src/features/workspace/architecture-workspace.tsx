@@ -18,6 +18,7 @@ import {
 } from "@/components/ui";
 import type { EntityId } from "@/domain/architecture";
 import type { CapabilityDefinition } from "@/domain/catalog";
+import { ActivityPanel } from "@/features/activity";
 import { RequirementsWorkspace } from "@/features/requirements";
 import { ResolutionWorkspace } from "@/features/resolution";
 
@@ -32,10 +33,12 @@ import styles from "./workspace.module.css";
 
 type InspectorTab = "component" | "resolution" | "connections";
 type InputTab = "requirements" | "constraints" | "library";
+type SignalTab = "validation" | "activity";
 
 export function ArchitectureWorkspace() {
   const {
     architecture,
+    activityStore,
     architectures,
     capabilities,
     createArchitecture,
@@ -55,6 +58,7 @@ export function ArchitectureWorkspace() {
     useState<EntityId | null>(null);
   const [inspectorTab, setInspectorTab] = useState<InspectorTab>("component");
   const [inputTab, setInputTab] = useState<InputTab>("requirements");
+  const [signalTab, setSignalTab] = useState<SignalTab>("validation");
   const [newArchitectureOpen, setNewArchitectureOpen] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
@@ -63,6 +67,17 @@ export function ArchitectureWorkspace() {
   const componentIds = useMemo(
     () => new Set(architecture?.components.map(({ id }) => id) ?? []),
     [architecture?.components],
+  );
+  const navigableEntityIds = useMemo(
+    () =>
+      new Set([
+        architecture?.id,
+        ...(architecture?.requirements.map(({ id }) => id) ?? []),
+        ...(architecture?.constraints.map(({ id }) => id) ?? []),
+        ...(architecture?.components.map(({ id }) => id) ?? []),
+        ...(architecture?.connections.map(({ id }) => id) ?? []),
+      ].filter((id): id is EntityId => Boolean(id))),
+    [architecture],
   );
 
   const selectedComponentId =
@@ -170,6 +185,35 @@ export function ArchitectureWorkspace() {
     setSelectedComponentId(componentId);
     setInspectorTab("component");
     if (narrow) setInspectorOpen(true);
+  }
+
+  function navigateToEntity(entityId: EntityId) {
+    if (!architecture) return;
+    if (architecture.components.some(({ id }) => id === entityId)) {
+      navigateToComponent(entityId);
+      return;
+    }
+    if (architecture.requirements.some(({ id }) => id === entityId)) {
+      setInputTab("requirements");
+      if (narrow) setLibraryOpen(true);
+      return;
+    }
+    if (architecture.constraints.some(({ id }) => id === entityId)) {
+      setInputTab("constraints");
+      if (narrow) setLibraryOpen(true);
+      return;
+    }
+    if (architecture.connections.some(({ id }) => id === entityId)) {
+      setInspectorTab("connections");
+      if (narrow) setInspectorOpen(true);
+      return;
+    }
+    if (architecture.id === entityId) {
+      document.getElementById("workspace-title")?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
   }
 
   function inspectValidationIssue(issueId: EntityId) {
@@ -347,17 +391,35 @@ export function ArchitectureWorkspace() {
         <Panel
           bodyClassName={styles.validationBody}
           className={styles.validationRegion}
-          subtitle="Derived from the canonical architecture"
-          title="Validation"
+          subtitle="Deterministic validation and observable AI operations"
+          title="Workspace signals"
         >
-          <ValidationPanel
-            architectureComponentIds={componentIds}
-            error={validationError?.message ?? null}
-            issues={validationIssues}
-            loading={validationLoading}
-            onNavigate={navigateToComponent}
-            onRetry={refreshValidation}
-          />
+          <Tabs
+            onValueChange={(value) => setSignalTab(value as SignalTab)}
+            value={signalTab}
+          >
+            <TabsList aria-label="Workspace signal sections">
+              <TabsTrigger value="validation">Validation</TabsTrigger>
+              <TabsTrigger value="activity">AI activity</TabsTrigger>
+            </TabsList>
+            <TabsPanel value="validation">
+              <ValidationPanel
+                architectureComponentIds={componentIds}
+                error={validationError?.message ?? null}
+                issues={validationIssues}
+                loading={validationLoading}
+                onNavigate={navigateToComponent}
+                onRetry={refreshValidation}
+              />
+            </TabsPanel>
+            <TabsPanel value="activity">
+              <ActivityPanel
+                entityIds={navigableEntityIds}
+                onNavigate={navigateToEntity}
+                store={activityStore}
+              />
+            </TabsPanel>
+          </Tabs>
         </Panel>
       </div>
 

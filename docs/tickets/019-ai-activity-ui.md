@@ -1,6 +1,6 @@
 # Ticket: AI activity UI
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Make WebMCP actions and failures visible inside the workspace.

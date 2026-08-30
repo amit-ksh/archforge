@@ -1,0 +1,80 @@
+.panel,
+.list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.panelActions {
+  align-items: center;
+  color: var(--text-muted);
+  display: flex;
+  font-size: 0.75rem;
+  gap: var(--space-3);
+  justify-content: space-between;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.announcement {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.details {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.details > div {
+  display: grid;
+  gap: var(--space-1);
+  grid-template-columns: minmax(6rem, 0.35fr) minmax(0, 1fr);
+}
+
+.details dt {
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  font-weight: 650;
+}
+
+.details dd {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.details code,
+.entityLinks span {
+  font-family: var(--font-geist-mono), monospace;
+  overflow-wrap: anywhere;
+}
+
+.entityLinks {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.entityLinks span {
+  color: var(--text-muted);
+  padding: var(--space-2);
+  text-decoration: line-through;
+}
+
+@media (max-width: 40rem) {
+  .details > div {
+    grid-template-columns: 1fr;
+  }
+}

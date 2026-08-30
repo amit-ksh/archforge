@@ -1,4 +1,4 @@
-import { forwardRef, type HTMLAttributes } from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 
 import { Badge, type BadgeTone } from "./surfaces";
 import styles from "./ui.module.css";
@@ -14,15 +14,29 @@ const statusPresentation: Record<ActivityStatus, { label: string; tone: BadgeTon
 
 export interface ActivityEntryProps extends HTMLAttributes<HTMLElement> {
   detail?: string;
+  details?: ReactNode;
+  provenance?: string;
   status: ActivityStatus;
   summary: string;
   timestamp: string;
+  timestampValue?: string;
   toolName: string;
 }
 
 export const ActivityEntry = forwardRef<HTMLElement, ActivityEntryProps>(
   function ActivityEntry(
-    { className, detail, status, summary, timestamp, toolName, ...props },
+    {
+      className,
+      detail,
+      details,
+      provenance,
+      status,
+      summary,
+      timestamp,
+      timestampValue,
+      toolName,
+      ...props
+    },
     ref,
   ) {
     const presentation = statusPresentation[status];
@@ -35,12 +49,23 @@ export const ActivityEntry = forwardRef<HTMLElement, ActivityEntryProps>(
         ref={ref}
       >
         <div className={styles.activityHeader}>
-          <span className={styles.activityTool}>{toolName}</span>
+          <span className={styles.activityIdentity}>
+            <span className={styles.activityTool}>{toolName}</span>
+            {provenance ? <Badge tone="ai">{provenance}</Badge> : null}
+          </span>
           <Badge tone={presentation.tone}>{presentation.label}</Badge>
         </div>
         <p className={styles.activitySummary}>{summary}</p>
         {detail ? <p className={styles.activityDetail}>{detail}</p> : null}
-        <time className={styles.activityTime} dateTime={timestamp}>{timestamp}</time>
+        {details ? (
+          <details className={styles.activityDetails}>
+            <summary>Details</summary>
+            <div>{details}</div>
+          </details>
+        ) : null}
+        <time className={styles.activityTime} dateTime={timestampValue ?? timestamp}>
+          {timestamp}
+        </time>
       </article>
     );
   },

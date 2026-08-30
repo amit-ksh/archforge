@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import type { ReactNode } from "react";
@@ -27,13 +28,22 @@ import type {
 } from "@/domain/resolution";
 import { ResolutionEngine } from "@/domain/resolution";
 import { ValidationEngine } from "@/domain/validation";
+import { ActivityStore } from "@/features/activity";
 import {
+  ArchitectureExportEngine,
   CryptoIdGenerator,
   IndexedDbArchitectureRepository,
   StaticComponentCatalog,
   StaticProviderCatalog,
   SystemClock,
 } from "@/infrastructure";
+import {
+  createAnalysisExportTools,
+  createArchitectureRequirementTools,
+  createDesignTools,
+  createResolutionToolSet,
+  createWebMcpRegistrar,
+} from "@/webmcp";
 
 export interface WorkspaceError {
   readonly message: string;
@@ -49,6 +59,7 @@ interface ArchitectureWorkspaceContextValue {
   readonly validationIssues: readonly ValidationIssue[];
   readonly validationLoading: boolean;
   readonly validationError: WorkspaceError | null;
+  readonly activityStore: ActivityStore;
   readonly createArchitecture: (
     name: string,
     description?: string,
@@ -82,6 +93,10 @@ function toWorkspaceError(cause: unknown, fallback: string): WorkspaceError {
   };
 }
 
+function isAbortError(cause: unknown): boolean {
+  return cause instanceof Error && cause.name === "AbortError";
+}
+
 export function ArchitectureProvider({ children }: { readonly children: ReactNode }) {
   const services = useMemo(() => {
     const repository = new IndexedDbArchitectureRepository();
@@ -104,21 +119,43 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       clock,
       resolutionEngine,
     );
+    const validationService = new ValidationService(
+      repository,
+      new ValidationEngine(
+        componentCatalog,
+        providerCatalog,
+        resolutionEngine,
+      ),
+    );
+    const exporter = new ArchitectureExportEngine();
+    const activityStore = new ActivityStore();
+    const sharedDependencies = {
+      architectureService,
+      commandService,
+      componentCatalog,
+      idGenerator,
+      resolutionService,
+      validationService,
+      exporter,
+    };
+    const webMcpTools = [
+      ...createArchitectureRequirementTools(sharedDependencies),
+      ...createDesignTools(sharedDependencies),
+      ...createResolutionToolSet(sharedDependencies),
+      ...createAnalysisExportTools(sharedDependencies),
+    ];
     return {
       repository,
+      clock,
       idGenerator,
       capabilities: componentCatalog.listCapabilities(),
       architectureService,
       commandService,
       resolutionService,
-      validationService: new ValidationService(
-        repository,
-        new ValidationEngine(
-          componentCatalog,
-          providerCatalog,
-          resolutionEngine,
-        ),
-      ),
+      validationService,
+      exporter,
+      activityStore,
+      webMcpTools,
     };
   }, []);
   const [architectures, setArchitectures] = useState<readonly Architecture[]>([]);
@@ -132,6 +169,9 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
   const [validationError, setValidationError] = useState<WorkspaceError | null>(
     null,
   );
+  const webMcpRegistrar = useRef<
+    ReturnType<typeof createWebMcpRegistrar> | null
+  >(null);
 
   const validate = useCallback(
     async (architectureId: EntityId) => {
@@ -200,8 +240,66 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
     return () => {
       active = false;
       services.repository.close();
+      services.exporter.dispose();
     };
   }, [services, validate]);
+
+  useEffect(() => {
+    const registrar =
+      webMcpRegistrar.current ??
+      createWebMcpRegistrar({
+        clock: services.clock,
+        idGenerator: services.idGenerator,
+        activitySink: services.activityStore,
+        document,
+      });
+    webMcpRegistrar.current = registrar;
+    void registrar.register(services.webMcpTools).catch((cause: unknown) => {
+      if (isAbortError(cause)) return;
+      const correlationId = services.idGenerator.next("webmcp-registration");
+      const message = "WebMCP tools could not be registered in this browser.";
+      services.activityStore.record({
+        correlationId,
+        toolName: "webmcp_registration",
+        toolTitle: "WebMCP registration",
+        behavior: "read",
+        status: "failed",
+        summary: message,
+        timestamp: services.clock.now(),
+        affectedIds: [],
+        error: {
+          code: "WEBMCP_REGISTRATION_ERROR",
+          message,
+          retryable: true,
+          correlationId,
+        },
+      });
+    });
+  }, [services]);
+
+  useEffect(
+    () =>
+      services.activityStore.subscribe((event) => {
+        if (
+          !event ||
+          event.behavior !== "mutation" ||
+          event.status !== "succeeded"
+        ) {
+          return;
+        }
+        const selectedArchitectureId = architecture?.id ?? null;
+        void services.architectureService.list().then(async (loaded) => {
+          const selected =
+            loaded.find(({ id }) => id === selectedArchitectureId) ??
+            loaded[0] ??
+            null;
+          setArchitectures(loaded);
+          setArchitecture(selected);
+          if (selected) await validate(selected.id);
+        });
+      }),
+    [architecture?.id, services, validate],
+  );
 
   const createNewArchitecture = useCallback(
     async (name: string, description?: string) => {
@@ -349,6 +447,7 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       validationIssues,
       validationLoading,
       validationError,
+      activityStore: services.activityStore,
       createArchitecture: createNewArchitecture,
       loadArchitecture,
       reloadArchitectures,
@@ -370,6 +469,7 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       refreshValidation,
       reloadArchitectures,
       services.capabilities,
+      services.activityStore,
       setResolution,
       suggestResolution,
       validationError,
