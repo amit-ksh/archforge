@@ -16,10 +16,15 @@ import { ArchitectureRepositoryError } from "@/application/ports";
 import {
   ArchitectureCommandService,
   ArchitectureService,
+  ResolutionService,
   ValidationService,
 } from "@/application/services";
 import type { Architecture, EntityId } from "@/domain/architecture";
 import type { CapabilityDefinition } from "@/domain/catalog";
+import type {
+  ResolutionCandidateKind,
+  ResolutionResult,
+} from "@/domain/resolution";
 import { ResolutionEngine } from "@/domain/resolution";
 import { ValidationEngine } from "@/domain/validation";
 import {
@@ -51,6 +56,15 @@ interface ArchitectureWorkspaceContextValue {
   readonly loadArchitecture: (id: EntityId) => Promise<void>;
   readonly reloadArchitectures: () => Promise<void>;
   readonly refreshValidation: () => Promise<void>;
+  readonly suggestResolution: (
+    componentId: EntityId,
+    candidateKind: ResolutionCandidateKind,
+  ) => Promise<ResolutionResult>;
+  readonly setResolution: (
+    componentId: EntityId,
+    candidateKind: ResolutionCandidateKind,
+    candidateId: EntityId | null,
+  ) => Promise<void>;
   readonly nextId: (prefix: string) => EntityId;
   readonly dispatchCommand: (command: ArchitectureCommand) => Promise<void>;
 }
@@ -79,16 +93,24 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       componentCatalog,
       providerCatalog,
     );
+    const architectureService = new ArchitectureService(
+      repository,
+      clock,
+      idGenerator,
+    );
+    const commandService = new ArchitectureCommandService(repository, clock);
+    const resolutionService = new ResolutionService(
+      repository,
+      clock,
+      resolutionEngine,
+    );
     return {
       repository,
       idGenerator,
       capabilities: componentCatalog.listCapabilities(),
-      architectureService: new ArchitectureService(
-        repository,
-        clock,
-        idGenerator,
-      ),
-      commandService: new ArchitectureCommandService(repository, clock),
+      architectureService,
+      commandService,
+      resolutionService,
       validationService: new ValidationService(
         repository,
         new ValidationEngine(
@@ -252,6 +274,66 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
     if (architecture) await validate(architecture.id);
   }, [architecture, validate]);
 
+  const suggestResolution = useCallback(
+    async (
+      componentId: EntityId,
+      candidateKind: ResolutionCandidateKind,
+    ) => {
+      if (!architecture) {
+        throw new Error("Select an architecture before resolving a component.");
+      }
+      return services.resolutionService.suggest({
+        architectureId: architecture.id,
+        componentId,
+        candidateKind,
+      });
+    },
+    [architecture, services],
+  );
+
+  const setResolution = useCallback(
+    async (
+      componentId: EntityId,
+      candidateKind: ResolutionCandidateKind,
+      candidateId: EntityId | null,
+    ) => {
+      if (!architecture) {
+        throw new Error("Select an architecture before resolving a component.");
+      }
+      const command =
+        candidateKind === "technology"
+          ? {
+              type: "resolution.set-technology" as const,
+              architectureId: architecture.id,
+              componentId,
+              technologyId: candidateId,
+            }
+          : candidateKind === "provider"
+            ? {
+                type: "resolution.set-provider" as const,
+                architectureId: architecture.id,
+                componentId,
+                providerId: candidateId,
+              }
+            : {
+                type: "resolution.set-cloud-service" as const,
+                architectureId: architecture.id,
+                componentId,
+                cloudServiceId: candidateId,
+              };
+      const result = await services.resolutionService.execute(command);
+      if (!result.ok) throw new Error(result.error.message);
+      const updated = result.value;
+      setArchitecture(updated);
+      setArchitectures((current) => [
+        updated,
+        ...current.filter(({ id }) => id !== updated.id),
+      ]);
+      await validate(updated.id);
+    },
+    [architecture, services, validate],
+  );
+
   const nextId = useCallback(
     (prefix: string) => services.idGenerator.next(prefix),
     [services],
@@ -271,6 +353,8 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       loadArchitecture,
       reloadArchitectures,
       refreshValidation,
+      suggestResolution,
+      setResolution,
       nextId,
       dispatchCommand,
     }),
@@ -286,6 +370,8 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       refreshValidation,
       reloadArchitectures,
       services.capabilities,
+      setResolution,
+      suggestResolution,
       validationError,
       validationIssues,
       validationLoading,

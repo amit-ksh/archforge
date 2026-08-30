@@ -19,6 +19,7 @@ import {
 import type { EntityId } from "@/domain/architecture";
 import type { CapabilityDefinition } from "@/domain/catalog";
 import { RequirementsWorkspace } from "@/features/requirements";
+import { ResolutionWorkspace } from "@/features/resolution";
 
 import { ArchitectureToolbar } from "./architecture-toolbar";
 import { ComponentInspector } from "./component-inspector";
@@ -29,7 +30,7 @@ import { useNarrowLayout } from "./use-narrow-layout";
 import { ValidationPanel } from "./validation-panel";
 import styles from "./workspace.module.css";
 
-type InspectorTab = "component" | "connections";
+type InspectorTab = "component" | "resolution" | "connections";
 type InputTab = "requirements" | "constraints" | "library";
 
 export function ArchitectureWorkspace() {
@@ -222,6 +223,7 @@ export function ArchitectureWorkspace() {
     >
       <TabsList aria-label="Inspector sections">
         <TabsTrigger value="component">Component</TabsTrigger>
+        <TabsTrigger value="resolution">Resolution</TabsTrigger>
         <TabsTrigger value="connections">Connections</TabsTrigger>
       </TabsList>
       <TabsPanel value="component">
@@ -231,6 +233,12 @@ export function ArchitectureWorkspace() {
           capabilities={capabilities}
           dispatchCommand={dispatchCommand}
           onDeleted={() => setSelectedComponentId(null)}
+          selectedComponentId={selectedComponentId}
+        />
+      </TabsPanel>
+      <TabsPanel value="resolution">
+        <ResolutionWorkspace
+          architecture={architecture}
           selectedComponentId={selectedComponentId}
         />
       </TabsPanel>

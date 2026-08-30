@@ -1,6 +1,6 @@
 # Ticket: Technology resolution UI
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Let users compare justified candidates and explicitly resolve each architecture component.
