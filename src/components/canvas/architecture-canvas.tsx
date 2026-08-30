@@ -22,6 +22,8 @@ const NODE_HEIGHT = 112;
 export interface ArchitectureCanvasProps {
   readonly architecture: Architecture;
   readonly dispatchCommand: (command: ArchitectureCommand) => Promise<void>;
+  readonly onSelectionChange?: (componentId: EntityId | null) => void;
+  readonly selectedComponentId?: EntityId | null;
 }
 
 interface PanState {
@@ -33,6 +35,8 @@ interface PanState {
 export function ArchitectureCanvas({
   architecture,
   dispatchCommand,
+  onSelectionChange,
+  selectedComponentId,
 }: ArchitectureCanvasProps) {
   const projection = useMemo(
     () => projectArchitecture(architecture),
@@ -85,6 +89,17 @@ export function ArchitectureCanvas({
       clientY: event.clientY,
     };
     dispatch({ type: "component.select", componentId: null });
+    onSelectionChange?.(null);
+  }
+
+  const selection =
+    selectedComponentId === undefined
+      ? editor.selectedComponentId
+      : selectedComponentId;
+
+  function selectComponent(componentId: EntityId) {
+    dispatch({ type: "component.select", componentId });
+    onSelectionChange?.(componentId);
   }
 
   function handleCanvasPointerMove(event: PointerEvent<HTMLDivElement>) {
@@ -211,11 +226,9 @@ export function ArchitectureCanvas({
               key={node.id}
               node={node}
               position={positionFor(node.id) ?? node.position}
-              selected={editor.selectedComponentId === node.id}
+              selected={selection === node.id}
               zoom={editor.viewport.zoom}
-              onSelect={() =>
-                dispatch({ type: "component.select", componentId: node.id })
-              }
+              onSelect={() => selectComponent(node.id)}
               onDraftPosition={(position) =>
                 dispatch({
                   type: "position.draft",

@@ -1,0 +1,19 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+const NARROW_QUERY = "(max-width: 68rem)";
+
+export function useNarrowLayout() {
+  const [narrow, setNarrow] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(NARROW_QUERY);
+    const update = () => setNarrow(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  return narrow;
+}

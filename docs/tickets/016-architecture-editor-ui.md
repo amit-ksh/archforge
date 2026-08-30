@@ -1,6 +1,6 @@
 # Ticket: Architecture editor UI
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Build the main ArchForge workspace around the canonical canvas.

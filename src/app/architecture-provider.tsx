@@ -11,62 +11,164 @@ import {
 import type { ReactNode } from "react";
 
 import type { ArchitectureCommand } from "@/application/commands";
+import type { ValidationIssue } from "@/application/contracts";
+import { ArchitectureRepositoryError } from "@/application/ports";
 import {
   ArchitectureCommandService,
   ArchitectureService,
+  ValidationService,
 } from "@/application/services";
-import type { Architecture } from "@/domain/architecture";
+import type { Architecture, EntityId } from "@/domain/architecture";
+import type { CapabilityDefinition } from "@/domain/catalog";
+import { ResolutionEngine } from "@/domain/resolution";
+import { ValidationEngine } from "@/domain/validation";
 import {
   CryptoIdGenerator,
   IndexedDbArchitectureRepository,
+  StaticComponentCatalog,
+  StaticProviderCatalog,
   SystemClock,
 } from "@/infrastructure";
 
+export interface WorkspaceError {
+  readonly message: string;
+  readonly retryable: boolean;
+}
+
 interface ArchitectureWorkspaceContextValue {
   readonly architecture: Architecture | null;
+  readonly architectures: readonly Architecture[];
+  readonly capabilities: readonly CapabilityDefinition[];
   readonly loading: boolean;
-  readonly error: string | null;
+  readonly error: WorkspaceError | null;
+  readonly validationIssues: readonly ValidationIssue[];
+  readonly validationLoading: boolean;
+  readonly validationError: WorkspaceError | null;
   readonly createArchitecture: (
     name: string,
     description?: string,
   ) => Promise<Architecture>;
+  readonly loadArchitecture: (id: EntityId) => Promise<void>;
+  readonly reloadArchitectures: () => Promise<void>;
+  readonly refreshValidation: () => Promise<void>;
+  readonly nextId: (prefix: string) => EntityId;
   readonly dispatchCommand: (command: ArchitectureCommand) => Promise<void>;
 }
 
 const ArchitectureWorkspaceContext =
   createContext<ArchitectureWorkspaceContextValue | null>(null);
 
+function toWorkspaceError(cause: unknown, fallback: string): WorkspaceError {
+  if (cause instanceof ArchitectureRepositoryError) {
+    return { message: cause.message, retryable: cause.retryable };
+  }
+  return {
+    message: cause instanceof Error ? cause.message : fallback,
+    retryable: false,
+  };
+}
+
 export function ArchitectureProvider({ children }: { readonly children: ReactNode }) {
   const services = useMemo(() => {
     const repository = new IndexedDbArchitectureRepository();
     const clock = new SystemClock();
+    const idGenerator = new CryptoIdGenerator();
+    const componentCatalog = new StaticComponentCatalog();
+    const providerCatalog = new StaticProviderCatalog(undefined, componentCatalog);
+    const resolutionEngine = new ResolutionEngine(
+      componentCatalog,
+      providerCatalog,
+    );
     return {
       repository,
+      idGenerator,
+      capabilities: componentCatalog.listCapabilities(),
       architectureService: new ArchitectureService(
         repository,
         clock,
-        new CryptoIdGenerator(),
+        idGenerator,
       ),
       commandService: new ArchitectureCommandService(repository, clock),
+      validationService: new ValidationService(
+        repository,
+        new ValidationEngine(
+          componentCatalog,
+          providerCatalog,
+          resolutionEngine,
+        ),
+      ),
     };
   }, []);
+  const [architectures, setArchitectures] = useState<readonly Architecture[]>([]);
   const [architecture, setArchitecture] = useState<Architecture | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<WorkspaceError | null>(null);
+  const [validationIssues, setValidationIssues] = useState<
+    readonly ValidationIssue[]
+  >([]);
+  const [validationLoading, setValidationLoading] = useState(false);
+  const [validationError, setValidationError] = useState<WorkspaceError | null>(
+    null,
+  );
+
+  const validate = useCallback(
+    async (architectureId: EntityId) => {
+      setValidationLoading(true);
+      setValidationError(null);
+      try {
+        setValidationIssues(
+          await services.validationService.validate(architectureId),
+        );
+      } catch (cause) {
+        setValidationError(
+          toWorkspaceError(cause, "Architecture validation could not complete."),
+        );
+      } finally {
+        setValidationLoading(false);
+      }
+    },
+    [services],
+  );
+
+  const reloadArchitectures = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const loaded = await services.architectureService.list();
+      const selected =
+        loaded.find(({ id }) => id === architecture?.id) ?? loaded[0] ?? null;
+      setArchitectures(loaded);
+      setArchitecture(selected);
+      if (selected) {
+        await validate(selected.id);
+      } else {
+        setValidationIssues([]);
+        setValidationError(null);
+      }
+    } catch (cause) {
+      setError(
+        toWorkspaceError(cause, "Saved architectures could not be loaded."),
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [architecture?.id, services, validate]);
 
   useEffect(() => {
     let active = true;
     void services.architectureService
       .list()
-      .then((architectures) => {
-        if (active) setArchitecture(architectures[0] ?? null);
+      .then(async (loaded) => {
+        if (!active) return;
+        const current = loaded[0] ?? null;
+        setArchitectures(loaded);
+        setArchitecture(current);
+        if (current) await validate(current.id);
       })
       .catch((cause: unknown) => {
         if (active) {
           setError(
-            cause instanceof Error
-              ? cause.message
-              : "Saved architectures could not be loaded.",
+            toWorkspaceError(cause, "Saved architectures could not be loaded."),
           );
         }
       })
@@ -77,39 +179,117 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       active = false;
       services.repository.close();
     };
-  }, [services]);
+  }, [services, validate]);
 
   const createNewArchitecture = useCallback(
     async (name: string, description?: string) => {
       setError(null);
-      const created = await services.architectureService.create({
-        name,
-        description,
-      });
-      setArchitecture(created);
-      return created;
+      try {
+        const created = await services.architectureService.create({
+          name,
+          description,
+        });
+        setArchitectures((current) => [
+          created,
+          ...current.filter(({ id }) => id !== created.id),
+        ]);
+        setArchitecture(created);
+        await validate(created.id);
+        return created;
+      } catch (cause) {
+        setError(
+          toWorkspaceError(cause, "The architecture could not be created."),
+        );
+        throw cause;
+      }
     },
-    [services],
+    [services, validate],
+  );
+
+  const loadArchitecture = useCallback(
+    async (id: EntityId) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const loaded = await services.architectureService.get(id);
+        if (!loaded) throw new Error("The selected architecture was not found.");
+        setArchitecture(loaded);
+        await validate(loaded.id);
+      } catch (cause) {
+        setError(
+          toWorkspaceError(cause, "The architecture could not be loaded."),
+        );
+        throw cause;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [services, validate],
   );
 
   const dispatchCommand = useCallback(
     async (command: ArchitectureCommand) => {
       setError(null);
-      const updated = await services.commandService.execute(command);
-      setArchitecture(updated);
+      try {
+        const updated = await services.commandService.execute(command);
+        setArchitecture(updated);
+        setArchitectures((current) => [
+          updated,
+          ...current.filter(({ id }) => id !== updated.id),
+        ]);
+        await validate(updated.id);
+      } catch (cause) {
+        setError(
+          toWorkspaceError(cause, "The architecture change could not be saved."),
+        );
+        throw cause;
+      }
     },
+    [services, validate],
+  );
+
+  const refreshValidation = useCallback(async () => {
+    if (architecture) await validate(architecture.id);
+  }, [architecture, validate]);
+
+  const nextId = useCallback(
+    (prefix: string) => services.idGenerator.next(prefix),
     [services],
   );
 
   const value = useMemo<ArchitectureWorkspaceContextValue>(
     () => ({
       architecture,
+      architectures,
+      capabilities: services.capabilities,
       loading,
       error,
+      validationIssues,
+      validationLoading,
+      validationError,
       createArchitecture: createNewArchitecture,
+      loadArchitecture,
+      reloadArchitectures,
+      refreshValidation,
+      nextId,
       dispatchCommand,
     }),
-    [architecture, createNewArchitecture, dispatchCommand, error, loading],
+    [
+      architecture,
+      architectures,
+      createNewArchitecture,
+      dispatchCommand,
+      error,
+      loadArchitecture,
+      loading,
+      nextId,
+      refreshValidation,
+      reloadArchitectures,
+      services.capabilities,
+      validationError,
+      validationIssues,
+      validationLoading,
+    ],
   );
 
   return (

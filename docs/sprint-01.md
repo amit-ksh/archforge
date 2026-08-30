@@ -20,7 +20,7 @@ Status values are `Planned`, `In Progress`, and `Complete`. Execution is strictl
 | 13 | [013 WebMCP resolution tools](tickets/013-webmcp-resolution-tools.md) | 012 | Catalog/resolution tools | Full validation + tool tests | Complete |
 | 14 | [014 WebMCP analysis tools](tickets/014-webmcp-analysis-tools.md) | 013 | Validation/review/risk/export tools | Full validation + tool tests | Complete |
 | 15 | [015 Design-system UI](tickets/015-design-system-ui.md) | 004 | Tokens and reusable primitives | Full validation + component tests | Complete |
-| 16 | [016 Architecture editor UI](tickets/016-architecture-editor-ui.md) | 008, 015 | Complete editor shell/inspector | Full validation + interaction tests | Planned |
+| 16 | [016 Architecture editor UI](tickets/016-architecture-editor-ui.md) | 008, 015 | Complete editor shell/inspector | Full validation + interaction tests | Complete |
 | 17 | [017 Requirements UI](tickets/017-requirements-ui.md) | 016 | Requirement/constraint editing | Full validation + interaction tests | Planned |
 | 18 | [018 Technology resolution UI](tickets/018-technology-resolution-ui.md) | 017 | Evidence/tradeoff resolution flow | Full validation + interaction tests | Planned |
 | 19 | [019 AI activity UI](tickets/019-ai-activity-ui.md) | 014, 015 | Observable tool activity | Full validation + activity tests | Planned |
