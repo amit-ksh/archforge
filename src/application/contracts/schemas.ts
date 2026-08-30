@@ -146,14 +146,30 @@ export const ValidationIssueSchema = z.strictObject({
   suggestedAction: z.string().min(1),
 });
 
+export const ExportFormatSchema = z.enum(["json", "svg", "png"]);
+
+export const ExportProjectionSettingsSchema = z.strictObject({
+  padding: z.number().finite().min(0).max(256).optional(),
+  scale: z.number().finite().min(0.25).max(4).optional(),
+  background: z.enum(["light", "transparent"]).optional(),
+  viewport: z
+    .strictObject({
+      x: z.number().finite(),
+      y: z.number().finite(),
+      width: z.number().finite().positive().max(16_384),
+      height: z.number().finite().positive().max(16_384),
+    })
+    .optional(),
+});
+
 export const ExportResultSchema = z.strictObject({
-  format: z.enum(["json", "svg", "png"]),
+  format: ExportFormatSchema,
   filename: z.string().min(1),
   mediaType: z.enum(["application/json", "image/svg+xml", "image/png"]),
   encoding: z.enum(["utf-8", "base64", "object-url"]),
   data: z.string(),
   size: z.number().int().nonnegative(),
-  warnings: z.array(z.string()),
+  warnings: z.array(z.string().min(1)),
 });
 
 export function createToolInputSchema<TPayload extends z.ZodType>(
@@ -192,6 +208,10 @@ export const ToolResultSchema = createToolResultSchema(z.unknown());
 
 export type ArchitectureContract = z.infer<typeof ArchitectureSchema>;
 export type ErrorContract = z.infer<typeof ErrorSchema>;
+export type ExportFormat = z.infer<typeof ExportFormatSchema>;
+export type ExportProjectionSettings = z.infer<
+  typeof ExportProjectionSettingsSchema
+>;
 export type ExportResult = z.infer<typeof ExportResultSchema>;
 export type MutationSummary = z.infer<typeof MutationSummarySchema>;
 export type ToolInput = z.infer<typeof ToolInputSchema>;

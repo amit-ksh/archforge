@@ -13,7 +13,7 @@ Status values are `Planned`, `In Progress`, and `Complete`. Execution is strictl
 | 6 | [006 Provider catalog](tickets/006-provider-catalog.md) | 005 | AWS/Azure service catalog | Full validation + catalog integrity | Complete |
 | 7 | [007 Resolution engine](tickets/007-resolution-engine.md) | 003, 005, 006 | Ranked evidence-based suggestions | Full validation + resolver tests | Complete |
 | 8 | [008 Validation engine](tickets/008-validation-engine.md) | 007 | Structured deterministic issues | Full validation + rule tests | Complete |
-| 9 | [009 Export engine](tickets/009-export-engine.md) | 004, 008 | JSON/SVG/PNG exporters | Full validation + exporter tests | Planned |
+| 9 | [009 Export engine](tickets/009-export-engine.md) | 004, 008 | JSON/SVG/PNG exporters | Full validation + exporter tests | Complete |
 | 10 | [010 WebMCP foundation](tickets/010-webmcp-foundation.md) | 003, 009 | Registration and adapter contracts | Full validation + WebMCP contract tests | Planned |
 | 11 | [011 WebMCP architecture tools](tickets/011-webmcp-architecture-tools.md) | 010 | Architecture/requirement tools | Full validation + tool tests | Planned |
 | 12 | [012 WebMCP design tools](tickets/012-webmcp-design-tools.md) | 011 | Component/connection tools | Full validation + tool tests | Planned |

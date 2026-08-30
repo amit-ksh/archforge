@@ -1,6 +1,6 @@
 # Ticket: JSON SVG and PNG export engine
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Export validated architecture snapshots locally in JSON, SVG, and PNG.
