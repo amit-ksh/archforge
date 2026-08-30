@@ -33,7 +33,12 @@ export function structuredError(
 ): ErrorContract {
   if (error instanceof DomainError) {
     return {
-      code: error.code,
+      code:
+        error.code === "ENTITY_NOT_FOUND"
+          ? "NOT_FOUND"
+          : error.code === "DUPLICATE_ID"
+            ? "CONFLICT"
+            : error.code,
       message: error.message,
       retryable: false,
       correlationId,

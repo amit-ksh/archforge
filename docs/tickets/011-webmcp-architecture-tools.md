@@ -1,6 +1,6 @@
 # Ticket: WebMCP architecture and requirement tools
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Expose architecture and requirement operations through WebMCP.
