@@ -75,7 +75,11 @@ export function ValidationPanel({
         );
         return (
           <li key={issue.id}>
-            <div className={styles.validationIssue}>
+            <div
+              className={styles.validationIssue}
+              id={`validation-${issue.id}`}
+              tabIndex={-1}
+            >
               <Badge tone={toneBySeverity[issue.severity]}>
                 {issue.severity}
               </Badge>

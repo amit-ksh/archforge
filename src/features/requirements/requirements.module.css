@@ -1,0 +1,240 @@
+.workspaceSection,
+.evidenceForm,
+.evidenceList {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.workspaceSection {
+  padding: var(--space-3);
+}
+
+.sectionHeader,
+.listToolbar,
+.formActions,
+.dialogActions,
+.cardActions,
+.cardBadges {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sectionHeader,
+.listToolbar {
+  justify-content: space-between;
+}
+
+.sectionHeader > div {
+  min-width: 0;
+}
+
+.sectionHeader h3,
+.evidenceForm h4 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-weight: 680;
+}
+
+.sectionHeader p {
+  margin: var(--space-1) 0 0;
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+}
+
+.evidenceForm {
+  padding: var(--space-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.formActions {
+  flex-wrap: wrap;
+}
+
+.patterns {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--semantic-technology-surface);
+  border: 1px solid
+    color-mix(in srgb, var(--semantic-technology) 35%, var(--border-subtle));
+  border-radius: var(--radius-card);
+}
+
+.patterns strong,
+.listToolbar strong {
+  color: var(--text-secondary);
+  font-size: 0.6875rem;
+}
+
+.patterns > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.patterns button,
+.issueLinks button {
+  padding: var(--space-1) var(--space-2);
+  color: var(--text-secondary);
+  background: var(--surface-1);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  font-size: 0.6875rem;
+}
+
+.patterns button:hover,
+.issueLinks button:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.listToolbar {
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.listToolbar label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+}
+
+.listToolbar select {
+  min-height: 1.75rem;
+  padding: 0 var(--space-2);
+  color: var(--text-primary);
+  background: var(--surface-1);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-control);
+}
+
+.evidenceList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.evidenceCard {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+}
+
+.evidenceCard > p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-weight: 550;
+  line-height: 1.45;
+}
+
+.cardBadges {
+  flex-wrap: wrap;
+}
+
+.evidenceCard dl {
+  display: grid;
+  margin: 0;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  gap: var(--space-1);
+}
+
+.evidenceCard dt,
+.source span {
+  color: var(--text-muted);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.evidenceCard dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--text-secondary);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.6875rem;
+}
+
+.source {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.source a,
+.source strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--interactive);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.source a:hover {
+  color: var(--interactive-hover);
+}
+
+.issueLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.issueLinks button {
+  color: var(--status-warning);
+  background: var(--status-warning-surface);
+  border-color: color-mix(
+    in srgb,
+    var(--status-warning) 45%,
+    var(--border-subtle)
+  );
+}
+
+.noIssues {
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+}
+
+.cardActions {
+  justify-content: flex-end;
+  padding-top: var(--space-1);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.cardActions button {
+  padding-inline: var(--space-2);
+}
+
+.confirmCopy {
+  margin: 0 0 var(--space-4);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.dialogActions {
+  justify-content: flex-end;
+}
+
+@media (max-width: 30rem) {
+  .fieldRow {
+    grid-template-columns: 1fr;
+  }
+}

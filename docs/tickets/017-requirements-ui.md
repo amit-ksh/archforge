@@ -1,6 +1,6 @@
 # Ticket: Requirements and constraints UI
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Make requirements, operational preferences, and existing constraints first-class editor inputs.

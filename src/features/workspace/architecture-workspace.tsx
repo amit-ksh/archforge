@@ -18,6 +18,7 @@ import {
 } from "@/components/ui";
 import type { EntityId } from "@/domain/architecture";
 import type { CapabilityDefinition } from "@/domain/catalog";
+import { RequirementsWorkspace } from "@/features/requirements";
 
 import { ArchitectureToolbar } from "./architecture-toolbar";
 import { ComponentInspector } from "./component-inspector";
@@ -29,6 +30,7 @@ import { ValidationPanel } from "./validation-panel";
 import styles from "./workspace.module.css";
 
 type InspectorTab = "component" | "connections";
+type InputTab = "requirements" | "constraints" | "library";
 
 export function ArchitectureWorkspace() {
   const {
@@ -51,6 +53,7 @@ export function ArchitectureWorkspace() {
   const [selectedId, setSelectedComponentId] =
     useState<EntityId | null>(null);
   const [inspectorTab, setInspectorTab] = useState<InspectorTab>("component");
+  const [inputTab, setInputTab] = useState<InputTab>("requirements");
   const [newArchitectureOpen, setNewArchitectureOpen] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
@@ -168,8 +171,49 @@ export function ArchitectureWorkspace() {
     if (narrow) setInspectorOpen(true);
   }
 
-  const library = (
-    <ComponentLibrary capabilities={capabilities} onAdd={addCapability} />
+  function inspectValidationIssue(issueId: EntityId) {
+    setLibraryOpen(false);
+    requestAnimationFrame(() => {
+      const issue = document.getElementById(`validation-${issueId}`);
+      issue?.scrollIntoView({ behavior: "smooth", block: "center" });
+      issue?.focus({ preventScroll: true });
+    });
+  }
+
+  const designInputs = (
+    <Tabs
+      onValueChange={(value) => setInputTab(value as InputTab)}
+      value={inputTab}
+    >
+      <TabsList aria-label="Design input sections">
+        <TabsTrigger value="requirements">Requirements</TabsTrigger>
+        <TabsTrigger value="constraints">Constraints</TabsTrigger>
+        <TabsTrigger value="library">Library</TabsTrigger>
+      </TabsList>
+      <TabsPanel value="requirements">
+        <RequirementsWorkspace
+          architecture={architecture}
+          dispatchCommand={dispatchCommand}
+          issues={validationIssues}
+          nextId={nextId}
+          onInspectIssue={inspectValidationIssue}
+          section="requirements"
+        />
+      </TabsPanel>
+      <TabsPanel value="constraints">
+        <RequirementsWorkspace
+          architecture={architecture}
+          dispatchCommand={dispatchCommand}
+          issues={validationIssues}
+          nextId={nextId}
+          onInspectIssue={inspectValidationIssue}
+          section="constraints"
+        />
+      </TabsPanel>
+      <TabsPanel value="library">
+        <ComponentLibrary capabilities={capabilities} onAdd={addCapability} />
+      </TabsPanel>
+    </Tabs>
   );
   const inspector = (
     <Tabs
@@ -214,7 +258,7 @@ export function ArchitectureWorkspace() {
         }}
         onNew={() => setNewArchitectureOpen(true)}
         onOpenInspector={() => setInspectorOpen(true)}
-        onOpenLibrary={() => setLibraryOpen(true)}
+        onOpenInputs={() => setLibraryOpen(true)}
         validationCount={validationIssues.length}
       />
 
@@ -238,10 +282,10 @@ export function ArchitectureWorkspace() {
           <Panel
             bodyClassName={styles.railBody}
             className={styles.libraryRail}
-            subtitle="Provider-neutral building blocks"
-            title="Capability library"
+            subtitle="Evidence and provider-neutral building blocks"
+            title="Design inputs"
           >
-            {library}
+            {designInputs}
           </Panel>
         ) : null}
 
@@ -348,12 +392,12 @@ export function ArchitectureWorkspace() {
       {narrow ? (
         <>
           <Dialog
-            description="Choose a semantic capability to add to the current design."
+            description="Edit requirements, constraints, and provider-neutral capabilities."
             onOpenChange={setLibraryOpen}
             open={libraryOpen}
-            title="Capability library"
+            title="Design inputs"
           >
-            {library}
+            {designInputs}
           </Dialog>
           <Dialog
             description="Edit the selected component or manage directed connections."

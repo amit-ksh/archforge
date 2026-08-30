@@ -16,7 +16,7 @@ interface ArchitectureToolbarProps {
   readonly onLoad: (id: EntityId) => Promise<void>;
   readonly onNew: () => void;
   readonly onOpenInspector: () => void;
-  readonly onOpenLibrary: () => void;
+  readonly onOpenInputs: () => void;
   readonly validationCount: number;
 }
 
@@ -29,7 +29,7 @@ export function ArchitectureToolbar({
   onLoad,
   onNew,
   onOpenInspector,
-  onOpenLibrary,
+  onOpenInputs,
   validationCount,
 }: ArchitectureToolbarProps) {
   function load(event: ChangeEvent<HTMLSelectElement>) {
@@ -70,8 +70,8 @@ export function ArchitectureToolbar({
       <div className={styles.commandActions}>
         {narrow ? (
           <>
-            <Button onClick={onOpenLibrary} size="compact" variant="secondary">
-              Library
+            <Button onClick={onOpenInputs} size="compact" variant="secondary">
+              Inputs
             </Button>
             <Button onClick={onOpenInspector} size="compact" variant="secondary">
               Inspector
