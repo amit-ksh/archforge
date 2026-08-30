@@ -1,6 +1,6 @@
 # Ticket: WebMCP resolution tools
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Expose catalogs, evidence-based suggestions, and explicit selection commands.

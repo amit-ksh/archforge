@@ -17,7 +17,7 @@ Status values are `Planned`, `In Progress`, and `Complete`. Execution is strictl
 | 10 | [010 WebMCP foundation](tickets/010-webmcp-foundation.md) | 003, 009 | Registration and adapter contracts | Full validation + WebMCP contract tests | Complete |
 | 11 | [011 WebMCP architecture tools](tickets/011-webmcp-architecture-tools.md) | 010 | Architecture/requirement tools | Full validation + tool tests | Complete |
 | 12 | [012 WebMCP design tools](tickets/012-webmcp-design-tools.md) | 011 | Component/connection tools | Full validation + tool tests | Complete |
-| 13 | [013 WebMCP resolution tools](tickets/013-webmcp-resolution-tools.md) | 012 | Catalog/resolution tools | Full validation + tool tests | Planned |
+| 13 | [013 WebMCP resolution tools](tickets/013-webmcp-resolution-tools.md) | 012 | Catalog/resolution tools | Full validation + tool tests | Complete |
 | 14 | [014 WebMCP analysis tools](tickets/014-webmcp-analysis-tools.md) | 013 | Validation/review/risk/export tools | Full validation + tool tests | Planned |
 | 15 | [015 Design-system UI](tickets/015-design-system-ui.md) | 004 | Tokens and reusable primitives | Full validation + component tests | Planned |
 | 16 | [016 Architecture editor UI](tickets/016-architecture-editor-ui.md) | 008, 015 | Complete editor shell/inspector | Full validation + interaction tests | Planned |

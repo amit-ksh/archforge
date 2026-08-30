@@ -125,6 +125,7 @@ export const ErrorSchema = z.strictObject({
   code: z.string().regex(/^[A-Z][A-Z0-9_]*$/),
   message: z.string().min(1),
   fieldIssues: z.array(FieldIssueSchema).optional(),
+  details: z.record(z.string(), z.unknown()).optional(),
   retryable: z.boolean(),
   correlationId: z.string().min(1),
 });
