@@ -11,7 +11,7 @@ Status values are `Planned`, `In Progress`, and `Complete`. Execution is strictl
 | 4 | [004 Canvas foundation](tickets/004-canvas-foundation.md) | 003 | Model-driven canvas/editor state | Full validation + editor tests | Complete |
 | 5 | [005 Component catalog](tickets/005-component-catalog.md) | 002 | Capability/technology catalog | Full validation + catalog integrity | Complete |
 | 6 | [006 Provider catalog](tickets/006-provider-catalog.md) | 005 | AWS/Azure service catalog | Full validation + catalog integrity | Complete |
-| 7 | [007 Resolution engine](tickets/007-resolution-engine.md) | 003, 005, 006 | Ranked evidence-based suggestions | Full validation + resolver tests | Planned |
+| 7 | [007 Resolution engine](tickets/007-resolution-engine.md) | 003, 005, 006 | Ranked evidence-based suggestions | Full validation + resolver tests | Complete |
 | 8 | [008 Validation engine](tickets/008-validation-engine.md) | 007 | Structured deterministic issues | Full validation + rule tests | Planned |
 | 9 | [009 Export engine](tickets/009-export-engine.md) | 004, 008 | JSON/SVG/PNG exporters | Full validation + exporter tests | Planned |
 | 10 | [010 WebMCP foundation](tickets/010-webmcp-foundation.md) | 003, 009 | Registration and adapter contracts | Full validation + WebMCP contract tests | Planned |

@@ -6,7 +6,8 @@ export type DomainErrorCode =
   | "INVALID_CONNECTION"
   | "INVALID_REQUIREMENT"
   | "INVALID_CONSTRAINT"
-  | "INVALID_RESOLUTION";
+  | "INVALID_RESOLUTION"
+  | "INCOMPATIBLE_SELECTION";
 
 export class DomainError extends Error {
   readonly code: DomainErrorCode;
