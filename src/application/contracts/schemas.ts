@@ -142,7 +142,7 @@ export const ValidationIssueSchema = z.strictObject({
   severity: z.enum(["info", "warning", "error"]),
   rule: z.string().min(1),
   message: z.string().min(1),
-  affectedEntityIds: z.array(EntityIdSchema),
+  affectedEntityIds: z.array(EntityIdSchema).min(1),
   suggestedAction: z.string().min(1),
 });
 
