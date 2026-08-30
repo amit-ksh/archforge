@@ -1,6 +1,6 @@
 # Ticket: WebMCP component and connection tools
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Expose semantic design mutations and queries through WebMCP.
