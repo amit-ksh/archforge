@@ -1,6 +1,6 @@
 # Ticket: WebMCP analysis and export tools
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Expose deterministic validation, review, risks, and local export through WebMCP.

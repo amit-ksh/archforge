@@ -1,6 +1,10 @@
 import type { WebMcpToolDefinition } from "@/webmcp/core";
 
 import {
+  createAnalysisTools,
+  type AnalysisToolDependencies,
+} from "./analysis";
+import {
   createArchitectureTools,
   type ArchitectureToolDependencies,
 } from "./architecture";
@@ -12,6 +16,7 @@ import {
   createConnectionTools,
   type ConnectionToolDependencies,
 } from "./connections";
+import { createExportTools, type ExportToolDependencies } from "./export";
 import {
   createRequirementTools,
   type RequirementToolDependencies,
@@ -21,9 +26,11 @@ import {
   type ResolutionToolDependencies,
 } from "./resolution";
 
+export * from "./analysis";
 export * from "./architecture";
 export * from "./components";
 export * from "./connections";
+export * from "./export";
 export * from "./requirements";
 export * from "./resolution";
 
@@ -55,4 +62,16 @@ export function createResolutionToolSet(
   dependencies: ResolutionToolDependencies,
 ): readonly WebMcpToolDefinition[] {
   return createResolutionTools(dependencies);
+}
+
+export type AnalysisExportToolDependencies =
+  AnalysisToolDependencies & ExportToolDependencies;
+
+export function createAnalysisExportTools(
+  dependencies: AnalysisExportToolDependencies,
+): readonly WebMcpToolDefinition[] {
+  return [
+    ...createAnalysisTools(dependencies),
+    ...createExportTools(dependencies),
+  ];
 }
