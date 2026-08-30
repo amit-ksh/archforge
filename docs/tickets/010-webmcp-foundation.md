@@ -1,6 +1,6 @@
 # Ticket: WebMCP foundation
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Create a feature-detected WebMCP adapter and schema-driven tool framework.

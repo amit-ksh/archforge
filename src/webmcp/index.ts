@@ -1,2 +1,2 @@
 /** WebMCP adapters over typed application services. */
-export {};
+export * from "./core";
