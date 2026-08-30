@@ -1,6 +1,6 @@
 # Ticket: Design-system UI primitives
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Implement ArchForge semantic tokens and reusable accessible primitives.

@@ -1,8 +1,87 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light dark;
+
+  --surface-canvas: #f3f6fa;
+  --surface-1: #f8fafc;
+  --surface-2: #eef2f7;
+  --surface-base: var(--surface-1);
+  --surface-subtle: var(--surface-2);
+  --surface-raised: #fbfcfe;
+  --surface-overlay: #fbfcfe;
+  --text-primary: #18202d;
+  --text-secondary: #414b5a;
+  --text-muted: #5d6878;
+  --text-inverse: #f8fbff;
+  --border-subtle: #dce2ea;
+  --border-default: #c6ced9;
+  --border-strong: #8793a3;
+
+  --status-success: #0f766e;
+  --status-success-surface: #dff5f0;
+  --status-warning: #8a5200;
+  --status-warning-surface: #fff1cc;
+  --status-error: #b42318;
+  --status-error-surface: #fee8e7;
+  --status-info: #255bb5;
+  --status-info-surface: #e4edfc;
+
+  --interactive: #255bb5;
+  --interactive-hover: #1d4d9c;
+  --interactive-active: #173f82;
+  --selection: #e4edfc;
+  --focus-ring: #3974cf;
+  --interactive-primary: var(--interactive);
+  --interactive-primary-hover: var(--interactive-hover);
+  --interactive-primary-active: var(--interactive-active);
+  --interactive-secondary: #e7edf5;
+  --interactive-secondary-hover: #dce5ef;
+  --interactive-focus: var(--focus-ring);
+  --interactive-disabled: #aab4c2;
+
+  --semantic-capability: #255bb5;
+  --semantic-capability-surface: #e4edfc;
+  --semantic-technology: #6d4db3;
+  --semantic-technology-surface: #eee8fa;
+  --semantic-provider: #8a5200;
+  --semantic-provider-surface: #fff1cc;
+  --semantic-service: #0f766e;
+  --semantic-service-surface: #dff5f0;
+  --semantic-existing: #526071;
+  --semantic-existing-surface: #e7ebf0;
+  --semantic-ai: #7a3fa0;
+  --semantic-ai-surface: #f1e5f7;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  --radius-control: 0.25rem;
+  --radius-card: 0.5rem;
+  --radius-node: 0.5rem;
+  --radius-panel: 0.75rem;
+  --shadow-raised: 0 1px 2px rgb(24 32 45 / 0.08), 0 6px 18px rgb(24 32 45 / 0.06);
+  --shadow-overlay: 0 18px 48px rgb(24 32 45 / 0.2);
+  --z-canvas: 0;
+  --z-chrome: 10;
+  --z-sticky: 20;
+  --z-popover: 30;
+  --z-dialog: 40;
+  --z-toast: 50;
+  --z-toolbar: var(--z-chrome);
+  --z-overlay: var(--z-dialog);
+  --motion-fast: 120ms;
+  --motion-standard: 180ms;
+  --motion-panel: 220ms;
+
+  --background: var(--surface-canvas);
+  --foreground: var(--text-primary);
 }
 
 @theme inline {
@@ -14,13 +93,98 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --surface-canvas: #0d131d;
+    --surface-1: #111722;
+    --surface-2: #18212e;
+    --surface-raised: #1c2533;
+    --surface-overlay: #202a39;
+    --text-primary: #edf2f7;
+    --text-secondary: #c3ccd8;
+    --text-muted: #9ca8b8;
+    --text-inverse: #101722;
+    --border-subtle: #283445;
+    --border-default: #3a485b;
+    --border-strong: #6f7d90;
+
+    --status-success: #67d5c8;
+    --status-success-surface: #153d3a;
+    --status-warning: #f5bf61;
+    --status-warning-surface: #473516;
+    --status-error: #ff9188;
+    --status-error-surface: #4b2425;
+    --status-info: #8ab4ff;
+    --status-info-surface: #1d3458;
+
+    --interactive: #8ab4ff;
+    --interactive-hover: #a8c7ff;
+    --interactive-active: #c3d8ff;
+    --selection: #1d3458;
+    --focus-ring: #a8c7ff;
+    --interactive-secondary: #263244;
+    --interactive-secondary-hover: #303e52;
+    --interactive-disabled: #596678;
+
+    --semantic-capability: #8ab4ff;
+    --semantic-capability-surface: #1d3458;
+    --semantic-technology: #c5a5ff;
+    --semantic-technology-surface: #382d54;
+    --semantic-provider: #f5bf61;
+    --semantic-provider-surface: #473516;
+    --semantic-service: #67d5c8;
+    --semantic-service-surface: #153d3a;
+    --semantic-existing: #b3becc;
+    --semantic-existing-surface: #303a47;
+    --semantic-ai: #dda5f2;
+    --semantic-ai-surface: #45294f;
+
+    --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.24), 0 8px 22px rgb(0 0 0 / 0.18);
+    --shadow-overlay: 0 22px 56px rgb(0 0 0 / 0.42);
   }
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--surface-canvas);
+}
+
 body {
+  min-height: 100vh;
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: var(--status-info-surface);
+  color: var(--text-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--interactive-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
