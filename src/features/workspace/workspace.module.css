@@ -88,6 +88,22 @@
   margin-left: auto;
 }
 
+.exportControl {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.exportControl select {
+  min-height: 2rem;
+  padding: 0 var(--space-2);
+  color: var(--text-primary);
+  background: var(--surface-1);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-control);
+  font-size: 0.75rem;
+}
+
 .workspaceError {
   display: flex;
   align-items: center;
@@ -171,6 +187,53 @@
   font-size: clamp(1.25rem, 2vw, 1.75rem);
   font-weight: 680;
   letter-spacing: -0.03em;
+}
+
+.welcomeBenefits {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-5) 0 0;
+  padding-left: 1.1rem;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.welcomeBenefits li::marker {
+  color: var(--semantic-capability);
+}
+
+.welcomeActions,
+.sampleOption {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.sampleOption {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.sampleOption > span {
+  justify-self: center;
+  margin-top: calc(-1 * var(--space-5));
+  padding: 0 var(--space-2);
+  color: var(--text-muted);
+  background: var(--surface-raised);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+}
+
+.sampleOption > p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.sampleOption > button {
+  width: 100%;
 }
 
 .canvasHeader > div > p:not(.eyebrow),
@@ -599,6 +662,16 @@
     margin-left: 0;
   }
 
+  .exportControl {
+    order: 3;
+    width: 100%;
+  }
+
+  .exportControl select,
+  .exportControl button {
+    flex: 1;
+  }
+
   .commandActions button {
     flex: 1;
   }
@@ -631,5 +704,9 @@
     width: calc(100vw - 2rem);
     gap: var(--space-5);
     grid-template-columns: 1fr;
+  }
+
+  .welcomeBenefits {
+    margin-top: var(--space-4);
   }
 }

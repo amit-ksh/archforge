@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ArchForge
 
-## Getting Started
+ArchForge is a local-first architecture workspace for designing systems from
+provider-neutral capabilities before choosing technologies or cloud services.
+Requirements, constraints, validation evidence, unresolved decisions, and
+WebMCP activity stay visible alongside the canonical design.
 
-First, run the development server:
+All architecture data is stored in IndexedDB in the current browser profile.
+There is no backend, account, upload, or remote synchronization.
+
+## Requirements
+
+- Node.js 20.9 or newer
+- pnpm 10
+- A current Chromium-based browser for the supported MVP path
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). The first screen offers
+two explicit choices:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Create an empty architecture and model it yourself.
+- Load the sample architecture. This creates a new local record and never
+  replaces existing work.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Production verification uses:
 
-## Learn More
+```bash
+pnpm build
+pnpm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Five-minute demo
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Select **Load sample architecture**.
+2. Review the requirements and constraints in **Design inputs**.
+3. Select a canvas node, then open **Resolution** to compare evidence,
+   tradeoffs, and still-unresolved provider choices.
+4. Review **Validation**. Issues are deterministic and link back to affected
+   components.
+5. Choose JSON, SVG, or PNG in the command bar and select **Download**. Exports
+   are generated locally from the canonical architecture.
+6. Reload the page. The architecture persists; selection, viewport, and AI
+   activity do not.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+On a narrow viewport, use **Inputs** and **Inspector** to open the same controls
+as keyboard-accessible dialogs.
 
-## Deploy on Vercel
+## WebMCP support
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+ArchForge feature-detects the browser's `document.modelContext` API. When that
+experimental WebMCP surface is available, it registers strict, versioned tools
+for architecture editing, resolution, validation, review, risk analysis,
+export, and the high-level `design_system` workflow. Browsers without WebMCP
+still support the complete human editing and export path; tool registration is
+simply skipped.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+WebMCP mutations use the same application command services as the UI. The
+**AI activity** panel shows tool provenance, status, affected entities, safe
+errors, and workflow grouping. Activity is session-only and is not persisted
+with the architecture.
+
+The `design_system` workflow performs a zero-write preflight before sequential
+mutations. If a later step fails, earlier writes are retained and the structured
+error reports the completed prefix and recovery context; the workflow does not
+claim rollback.
+
+## Local data and recovery
+
+- Architectures are stored in the `archforge` IndexedDB database for the
+  current origin and browser profile.
+- Clearing site data removes local architectures and cannot be undone by the
+  app.
+- The in-app **Clear** command removes design content only after confirmation
+  and preserves the architecture record itself.
+- If an unreadable record is detected, ArchForge offers an explicit recovery
+  action that removes only corrupt records and preserves valid architectures.
+- JSON exports are lossless for the current contract version and can be kept as
+  local snapshots. Import is outside the MVP scope.
+
+## Validation
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm test:e2e
+pnpm build
+```
+
+The Playwright suite runs the configured Chromium MVP path with an isolated
+browser context. It covers local design and reload, resolution and download,
+WebMCP success/failure visibility, narrow keyboard navigation, and corrupt-data
+recovery.
+
+## MVP boundaries
+
+ArchForge does not provide authentication, collaboration, cloud persistence,
+deployment, infrastructure-as-code generation, or automatic vendor selection.
+Technology and provider scores are advisory; explicit user or agent selections
+remain auditable in the canonical architecture.

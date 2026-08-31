@@ -9,7 +9,7 @@ describe("repository baseline", () => {
 
     expect(
       await screen.findByRole("heading", {
-        level: 3,
+        level: 1,
         name: "Workspace unavailable",
       }),
     ).toBeInTheDocument();

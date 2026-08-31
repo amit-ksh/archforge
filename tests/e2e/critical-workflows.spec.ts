@@ -368,7 +368,7 @@ test("corrupt local records are removed explicitly without overwriting valid wor
 
   await page.reload();
   await expect(
-    page.getByRole("heading", { level: 3, name: "Workspace unavailable" }),
+    page.getByRole("heading", { level: 1, name: "Workspace unavailable" }),
   ).toBeVisible();
   await expect(page.getByText("Stored architecture data failed runtime validation."))
     .toBeVisible();

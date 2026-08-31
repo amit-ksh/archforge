@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { useArchitectureWorkspace } from "@/app/architecture-provider";
+import type { ExportFormat } from "@/application/contracts";
 import { ArchitectureCanvas } from "@/components/canvas";
 import {
   Button,
@@ -43,8 +44,10 @@ export function ArchitectureWorkspace() {
     capabilities,
     createArchitecture,
     dispatchCommand,
+    downloadArchitecture,
     error,
     loadArchitecture,
+    loadSampleArchitecture,
     loading,
     nextId,
     refreshValidation,
@@ -66,6 +69,11 @@ export function ArchitectureWorkspace() {
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [recovering, setRecovering] = useState(false);
+  const [loadingSample, setLoadingSample] = useState(false);
+  const [sampleError, setSampleError] = useState<string | null>(null);
+  const [exportFormat, setExportFormat] = useState<ExportFormat>("json");
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
   const componentIds = useMemo(
     () => new Set(architecture?.components.map(({ id }) => id) ?? []),
     [architecture?.components],
@@ -87,7 +95,7 @@ export function ArchitectureWorkspace() {
 
   if (loading && !architecture) {
     return (
-      <main className={styles.loadingShell}>
+      <main className={styles.loadingShell} id="main-content">
         <Skeleton label="Loading architecture workspace" />
         <Skeleton label="Loading saved architectures" />
         <Skeleton label="Loading canvas" />
@@ -115,9 +123,10 @@ export function ArchitectureWorkspace() {
         </Button>
       ) : undefined;
     return (
-      <main className={styles.centeredState}>
+      <main className={styles.centeredState} id="main-content">
         <ErrorState
           action={recoveryAction}
+          headingLevel={1}
           message={error.message}
           title="Workspace unavailable"
         />
@@ -127,7 +136,7 @@ export function ArchitectureWorkspace() {
 
   if (!architecture) {
     return (
-      <main className={styles.welcomeShell}>
+      <main className={styles.welcomeShell} id="main-content">
         <div className={styles.welcomeBrand}>
           <span className={styles.brandMark} aria-hidden="true">
             AF
@@ -142,12 +151,51 @@ export function ArchitectureWorkspace() {
               Start with provider-neutral capabilities, connect them into a
               design, then use explicit evidence to resolve technologies.
             </p>
+            <ul className={styles.welcomeBenefits}>
+              <li>Model requirements before selecting vendors.</li>
+              <li>See deterministic validation and unresolved decisions.</li>
+              <li>Keep every architecture in this browser&apos;s local storage.</li>
+            </ul>
           </div>
-          <CreateArchitectureForm
-            onCreate={async (name, description) => {
-              await createArchitecture(name, description);
-            }}
-          />
+          <div className={styles.welcomeActions}>
+            <CreateArchitectureForm
+              onCreate={async (name, description) => {
+                await createArchitecture(name, description);
+              }}
+            />
+            <div className={styles.sampleOption}>
+              <span aria-hidden="true">or</span>
+              <p>
+                Explore a realistic checkout design with requirements,
+                connections, partial resolutions, and validation issues.
+              </p>
+              <Button
+                busy={loadingSample}
+                onClick={() => {
+                  setLoadingSample(true);
+                  setSampleError(null);
+                  void loadSampleArchitecture()
+                    .catch((cause: unknown) => {
+                      setSampleError(
+                        cause instanceof Error
+                          ? cause.message
+                          : "The sample architecture could not be loaded.",
+                      );
+                    })
+                    .finally(() => setLoadingSample(false));
+                }}
+                variant="secondary"
+              >
+                Load sample architecture
+              </Button>
+              {sampleError ? (
+                <ErrorState
+                  message={sampleError}
+                  title="Sample not loaded"
+                />
+              ) : null}
+            </div>
+          </div>
         </section>
       </main>
     );
@@ -192,6 +240,22 @@ export function ArchitectureWorkspace() {
       setClearOpen(false);
     } finally {
       setClearing(false);
+    }
+  }
+
+  async function exportCurrentArchitecture() {
+    setExporting(true);
+    setExportError(null);
+    try {
+      await downloadArchitecture(exportFormat);
+    } catch (cause) {
+      setExportError(
+        cause instanceof Error
+          ? cause.message
+          : "The architecture export could not be created.",
+      );
+    } finally {
+      setExporting(false);
     }
   }
 
@@ -311,13 +375,17 @@ export function ArchitectureWorkspace() {
   );
 
   return (
-    <main className={styles.workspace}>
+    <main className={styles.workspace} id="main-content">
       <ArchitectureToolbar
         architecture={architecture}
         architectures={architectures}
+        exportFormat={exportFormat}
+        exporting={exporting}
         loading={loading}
         narrow={narrow}
         onClear={() => setClearOpen(true)}
+        onExport={() => void exportCurrentArchitecture()}
+        onExportFormatChange={setExportFormat}
         onLoad={async (id) => {
           setSelectedComponentId(null);
           await loadArchitecture(id);
@@ -340,6 +408,19 @@ export function ArchitectureWorkspace() {
               Retry
             </Button>
           ) : null}
+        </div>
+      ) : null}
+
+      {exportError ? (
+        <div className={styles.workspaceError} role="alert">
+          <span>{exportError}</span>
+          <Button
+            onClick={() => void exportCurrentArchitecture()}
+            size="compact"
+            variant="secondary"
+          >
+            Retry export
+          </Button>
         </div>
       ) : null}
 

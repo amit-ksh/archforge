@@ -12,7 +12,11 @@ import {
 import type { ReactNode } from "react";
 
 import type { ArchitectureCommand } from "@/application/commands";
-import type { ValidationIssue } from "@/application/contracts";
+import type {
+  ExportFormat,
+  ExportResult,
+  ValidationIssue,
+} from "@/application/contracts";
 import { ArchitectureRepositoryError } from "@/application/ports";
 import {
   ArchitectureCommandService,
@@ -47,6 +51,8 @@ import {
   createWebMcpRegistrar,
 } from "@/webmcp";
 
+import { SAMPLE_ARCHITECTURE } from "./sample-architecture";
+
 export interface WorkspaceError {
   readonly code: string;
   readonly message: string;
@@ -68,6 +74,7 @@ interface ArchitectureWorkspaceContextValue {
     description?: string,
   ) => Promise<Architecture>;
   readonly loadArchitecture: (id: EntityId) => Promise<void>;
+  readonly loadSampleArchitecture: () => Promise<Architecture>;
   readonly reloadArchitectures: () => Promise<void>;
   readonly recoverCorruptData: () => Promise<number>;
   readonly refreshValidation: () => Promise<void>;
@@ -82,6 +89,7 @@ interface ArchitectureWorkspaceContextValue {
   ) => Promise<void>;
   readonly nextId: (prefix: string) => EntityId;
   readonly dispatchCommand: (command: ArchitectureCommand) => Promise<void>;
+  readonly downloadArchitecture: (format: ExportFormat) => Promise<ExportResult>;
 }
 
 const ArchitectureWorkspaceContext =
@@ -150,6 +158,18 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       clock,
       activitySink: activityStore,
     });
+    const sampleWorkflowService = new DesignSystemWorkflowService({
+      architectureService,
+      commandService,
+      resolutionService,
+      validationService,
+      componentCatalog,
+      providerCatalog,
+      resolutionEngine,
+      idGenerator,
+      clock,
+      activitySink: { record: () => undefined },
+    });
     const sharedDependencies = {
       architectureService,
       commandService,
@@ -179,6 +199,7 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       exporter,
       activityStore,
       webMcpTools,
+      sampleWorkflowService,
     };
   }, []);
   const [architectures, setArchitectures] = useState<readonly Architecture[]>([]);
@@ -362,6 +383,36 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
     [services, validate],
   );
 
+  const loadSampleArchitecture = useCallback(async () => {
+    setError(null);
+    try {
+      const correlationId = services.idGenerator.next("sample-load");
+      const result = await services.sampleWorkflowService.execute(
+        SAMPLE_ARCHITECTURE,
+        correlationId,
+      );
+      const created = await services.architectureService.get(
+        result.architectureId,
+      );
+      if (!created) {
+        throw new Error("The sample architecture could not be loaded after creation.");
+      }
+      setArchitectures((current) => [
+        created,
+        ...current.filter(({ id }) => id !== created.id),
+      ]);
+      setArchitecture(created);
+      setValidationIssues(result.validationIssues);
+      setValidationError(null);
+      return created;
+    } catch (cause) {
+      setError(
+        toWorkspaceError(cause, "The sample architecture could not be loaded."),
+      );
+      throw cause;
+    }
+  }, [services]);
+
   const loadArchitecture = useCallback(
     async (id: EntityId) => {
       setLoading(true);
@@ -473,6 +524,39 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
     [services],
   );
 
+  const downloadArchitecture = useCallback(
+    async (format: ExportFormat) => {
+      if (!architecture) {
+        throw new Error("Select an architecture before exporting it.");
+      }
+      const result = await services.exporter.export(format, {
+        architecture,
+        validationIssues,
+      });
+      const temporaryUrl =
+        result.encoding === "object-url"
+          ? result.data
+          : URL.createObjectURL(
+              new Blob([result.data], { type: result.mediaType }),
+            );
+      const anchor = document.createElement("a");
+      anchor.download = result.filename;
+      anchor.href = temporaryUrl;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => {
+        if (result.encoding === "object-url") {
+          services.exporter.release(result);
+        } else {
+          URL.revokeObjectURL(temporaryUrl);
+        }
+      }, 0);
+      return result;
+    },
+    [architecture, services.exporter, validationIssues],
+  );
+
   const value = useMemo<ArchitectureWorkspaceContextValue>(
     () => ({
       architecture,
@@ -486,6 +570,7 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       activityStore: services.activityStore,
       createArchitecture: createNewArchitecture,
       loadArchitecture,
+      loadSampleArchitecture,
       reloadArchitectures,
       recoverCorruptData,
       refreshValidation,
@@ -493,14 +578,17 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       setResolution,
       nextId,
       dispatchCommand,
+      downloadArchitecture,
     }),
     [
       architecture,
       architectures,
       createNewArchitecture,
       dispatchCommand,
+      downloadArchitecture,
       error,
       loadArchitecture,
+      loadSampleArchitecture,
       loading,
       nextId,
       refreshValidation,

@@ -161,6 +161,25 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+.skipLink {
+  position: fixed;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: calc(var(--z-toast) + 1);
+  padding: var(--space-2) var(--space-3);
+  translate: 0 calc(-100% - var(--space-5));
+  color: var(--text-inverse);
+  background: var(--interactive-active);
+  border-radius: var(--radius-control);
+  font-size: 0.875rem;
+  font-weight: 650;
+  transition: translate var(--motion-fast) ease;
+}
+
+.skipLink:focus-visible {
+  translate: 0;
+}
+
 button,
 input,
 select,

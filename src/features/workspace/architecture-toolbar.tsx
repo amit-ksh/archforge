@@ -2,6 +2,7 @@
 
 import type { ChangeEvent } from "react";
 
+import type { ExportFormat } from "@/application/contracts";
 import { Badge, Button, Toolbar } from "@/components/ui";
 import type { Architecture, EntityId } from "@/domain/architecture";
 
@@ -11,8 +12,12 @@ interface ArchitectureToolbarProps {
   readonly architecture: Architecture;
   readonly architectures: readonly Architecture[];
   readonly loading: boolean;
+  readonly exportFormat: ExportFormat;
+  readonly exporting: boolean;
   readonly narrow: boolean;
   readonly onClear: () => void;
+  readonly onExport: () => void;
+  readonly onExportFormatChange: (format: ExportFormat) => void;
   readonly onLoad: (id: EntityId) => Promise<void>;
   readonly onNew: () => void;
   readonly onOpenInspector: () => void;
@@ -24,8 +29,12 @@ export function ArchitectureToolbar({
   architecture,
   architectures,
   loading,
+  exportFormat,
+  exporting,
   narrow,
   onClear,
+  onExport,
+  onExportFormatChange,
   onLoad,
   onNew,
   onOpenInspector,
@@ -67,6 +76,28 @@ export function ArchitectureToolbar({
       <Badge tone={validationCount > 0 ? "warning" : "success"}>
         {validationCount} {validationCount === 1 ? "issue" : "issues"}
       </Badge>
+      <div className={styles.exportControl} role="group" aria-label="Export architecture">
+        <select
+          aria-label="Export format"
+          disabled={exporting}
+          onChange={(event) =>
+            onExportFormatChange(event.target.value as ExportFormat)
+          }
+          value={exportFormat}
+        >
+          <option value="json">JSON</option>
+          <option value="svg">SVG</option>
+          <option value="png">PNG</option>
+        </select>
+        <Button
+          busy={exporting}
+          onClick={onExport}
+          size="compact"
+          variant="secondary"
+        >
+          Download
+        </Button>
+      </div>
       <div className={styles.commandActions}>
         {narrow ? (
           <>

@@ -59,7 +59,6 @@ export function CreateArchitectureForm({
         <ErrorState message={requestError} title="Architecture not created" />
       ) : null}
       <Input
-        autoFocus
         error={errors.name}
         label="Architecture name"
         onChange={(event) =>

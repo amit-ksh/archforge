@@ -26,7 +26,7 @@ Status values are `Planned`, `In Progress`, and `Complete`. Execution is strictl
 | 19 | [019 AI activity UI](tickets/019-ai-activity-ui.md) | 014, 015 | Observable tool activity | Full validation + activity tests | Complete |
 | 20 | [020 Design-system workflow](tickets/020-design-system-workflow.md) | 014, 019 | High-level composed WebMCP tool | Full validation + workflow tests | Complete |
 | 21 | [021 Integration tests](tickets/021-integration-tests.md) | 020 | Critical integration/E2E journeys | Full validation + `pnpm test:e2e` | Complete |
-| 22 | [022 Hackathon polish](tickets/022-hackathon-polish.md) | 021 | Accessible demo-ready MVP | All validation and E2E commands | Planned |
+| 22 | [022 Hackathon polish](tickets/022-hackathon-polish.md) | 021 | Accessible demo-ready MVP | All validation and E2E commands | Complete |
 
 ## Blueprint baseline validation
 

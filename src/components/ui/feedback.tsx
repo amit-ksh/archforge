@@ -26,13 +26,23 @@ export const EmptyState = forwardRef<HTMLDivElement, StateProps>(function EmptyS
   );
 });
 
-export const ErrorState = forwardRef<HTMLDivElement, StateProps>(function ErrorState(
-  { action, className, message, title, ...props },
+interface ErrorStateProps extends StateProps {
+  headingLevel?: 1 | 2 | 3;
+}
+
+export const ErrorState = forwardRef<HTMLDivElement, ErrorStateProps>(function ErrorState(
+  { action, className, headingLevel = 3, message, title, ...props },
   ref,
 ) {
   return (
     <div {...props} className={cx(styles.state, styles.errorState, className)} ref={ref} role="alert">
-      <h3 className={styles.stateTitle}>{title}</h3>
+      {headingLevel === 1 ? (
+        <h1 className={styles.stateTitle}>{title}</h1>
+      ) : headingLevel === 2 ? (
+        <h2 className={styles.stateTitle}>{title}</h2>
+      ) : (
+        <h3 className={styles.stateTitle}>{title}</h3>
+      )}
       <p className={styles.stateMessage}>{message}</p>
       {action ? <div className={styles.stateAction}>{action}</div> : null}
     </div>
