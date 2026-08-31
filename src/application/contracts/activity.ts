@@ -7,6 +7,7 @@ export type WebMcpToolBehavior = "read" | "mutation";
 
 export interface WebMcpActivityEvent {
   readonly correlationId: string;
+  readonly parentCorrelationId?: string;
   readonly toolName: string;
   readonly toolTitle: string;
   readonly behavior: WebMcpToolBehavior;

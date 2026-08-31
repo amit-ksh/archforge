@@ -9,6 +9,17 @@ import {
   type MutationSummary,
 } from "./schemas";
 
+export class WorkflowError extends Error {
+  constructor(
+    readonly code: "VALIDATION_ERROR" | "WORKFLOW_FAILED",
+    message: string,
+    readonly details: Readonly<Record<string, unknown>> = {},
+  ) {
+    super(message);
+    this.name = "WorkflowError";
+  }
+}
+
 export function validationErrorFromZod(
   error: z.ZodError,
   correlationId: string,
@@ -31,6 +42,17 @@ export function structuredError(
   error: unknown,
   correlationId: string,
 ): ErrorContract {
+  if (error instanceof WorkflowError) {
+    return {
+      code: error.code,
+      message: error.message,
+      ...(Object.keys(error.details).length > 0
+        ? { details: error.details }
+        : {}),
+      retryable: false,
+      correlationId,
+    };
+  }
   if (error instanceof DomainError) {
     const details =
       Object.keys(error.details).length > 0

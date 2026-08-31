@@ -63,6 +63,15 @@ function sanitizeEvent(event: WebMcpActivityEvent): WebMcpActivityEvent {
       MAX_LABEL_LENGTH,
       "unknown-correlation",
     ),
+    ...(event.parentCorrelationId
+      ? {
+          parentCorrelationId: safeText(
+            event.parentCorrelationId,
+            MAX_LABEL_LENGTH,
+            "unknown-parent",
+          ),
+        }
+      : {}),
     toolName: safeText(event.toolName, MAX_LABEL_LENGTH, "unknown_tool"),
     toolTitle: safeText(event.toolTitle, MAX_LABEL_LENGTH, "Unknown tool"),
     summary: safeText(
@@ -99,9 +108,10 @@ export class ActivityStore implements WebMcpActivitySink {
     );
     const next =
       existingIndex >= 0
-        ? this.events.map((current, index) =>
-            index === existingIndex ? sanitized : current,
-          )
+        ? [
+            sanitized,
+            ...this.events.filter((_, index) => index !== existingIndex),
+          ]
         : [sanitized, ...this.events].slice(0, this.limit);
     this.events = Object.freeze(next);
     this.emit(sanitized);

@@ -16,6 +16,10 @@ import {
   createConnectionTools,
   type ConnectionToolDependencies,
 } from "./connections";
+import {
+  createDesignSystemWorkflowTools,
+  type DesignSystemToolDependencies,
+} from "./design-system";
 import { createExportTools, type ExportToolDependencies } from "./export";
 import {
   createRequirementTools,
@@ -30,6 +34,7 @@ export * from "./analysis";
 export * from "./architecture";
 export * from "./components";
 export * from "./connections";
+export * from "./design-system";
 export * from "./export";
 export * from "./requirements";
 export * from "./resolution";
@@ -62,6 +67,12 @@ export function createResolutionToolSet(
   dependencies: ResolutionToolDependencies,
 ): readonly WebMcpToolDefinition[] {
   return createResolutionTools(dependencies);
+}
+
+export function createDesignSystemToolSet(
+  dependencies: DesignSystemToolDependencies,
+): readonly WebMcpToolDefinition[] {
+  return createDesignSystemWorkflowTools(dependencies);
 }
 
 export type AnalysisExportToolDependencies =

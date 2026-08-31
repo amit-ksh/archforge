@@ -4,6 +4,12 @@
   gap: var(--space-3);
 }
 
+.childActivity {
+  border-left: 1px solid var(--border-subtle);
+  margin-left: var(--space-3);
+  padding-left: var(--space-3);
+}
+
 .panelActions {
   align-items: center;
   color: var(--text-muted);

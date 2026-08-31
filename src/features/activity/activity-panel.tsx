@@ -45,6 +45,12 @@ function ActivityDetails({
         <dt>Behavior</dt>
         <dd>{event.behavior === "mutation" ? "Mutation" : "Read only"}</dd>
       </div>
+      {event.parentCorrelationId ? (
+        <div>
+          <dt>Workflow</dt>
+          <dd><code>{event.parentCorrelationId}</code></dd>
+        </div>
+      ) : null}
       {event.affectedIds.length > 0 ? (
         <div>
           <dt>Affected entities</dt>
@@ -98,7 +104,10 @@ export function ActivityPanel({ entityIds, onNavigate, store }: ActivityPanelPro
     store.getSnapshot,
     store.getSnapshot,
   );
-  const latestOutcome = events.find(({ status }) => status !== "running");
+  const latestOutcome = events.find(
+    ({ parentCorrelationId, status }) =>
+      !parentCorrelationId && status !== "running",
+  );
 
   if (events.length === 0) {
     return (
@@ -124,7 +133,12 @@ export function ActivityPanel({ entityIds, onNavigate, store }: ActivityPanelPro
       ) : null}
       <ol className={styles.list} aria-label="AI activity history">
         {events.map((event) => (
-          <li key={event.correlationId}>
+          <li
+            className={
+              event.parentCorrelationId ? styles.childActivity : undefined
+            }
+            key={event.correlationId}
+          >
             <ActivityEntry
               details={
                 <ActivityDetails

@@ -17,6 +17,7 @@ import { ArchitectureRepositoryError } from "@/application/ports";
 import {
   ArchitectureCommandService,
   ArchitectureService,
+  DesignSystemWorkflowService,
   ResolutionService,
   ValidationService,
 } from "@/application/services";
@@ -41,6 +42,7 @@ import {
   createAnalysisExportTools,
   createArchitectureRequirementTools,
   createDesignTools,
+  createDesignSystemToolSet,
   createResolutionToolSet,
   createWebMcpRegistrar,
 } from "@/webmcp";
@@ -129,6 +131,18 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
     );
     const exporter = new ArchitectureExportEngine();
     const activityStore = new ActivityStore();
+    const designSystemWorkflowService = new DesignSystemWorkflowService({
+      architectureService,
+      commandService,
+      resolutionService,
+      validationService,
+      componentCatalog,
+      providerCatalog,
+      resolutionEngine,
+      idGenerator,
+      clock,
+      activitySink: activityStore,
+    });
     const sharedDependencies = {
       architectureService,
       commandService,
@@ -137,12 +151,14 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       resolutionService,
       validationService,
       exporter,
+      designSystemWorkflowService,
     };
     const webMcpTools = [
       ...createArchitectureRequirementTools(sharedDependencies),
       ...createDesignTools(sharedDependencies),
       ...createResolutionToolSet(sharedDependencies),
       ...createAnalysisExportTools(sharedDependencies),
+      ...createDesignSystemToolSet(sharedDependencies),
     ];
     return {
       repository,
