@@ -48,6 +48,7 @@ import {
 } from "@/webmcp";
 
 export interface WorkspaceError {
+  readonly code: string;
   readonly message: string;
   readonly retryable: boolean;
 }
@@ -68,6 +69,7 @@ interface ArchitectureWorkspaceContextValue {
   ) => Promise<Architecture>;
   readonly loadArchitecture: (id: EntityId) => Promise<void>;
   readonly reloadArchitectures: () => Promise<void>;
+  readonly recoverCorruptData: () => Promise<number>;
   readonly refreshValidation: () => Promise<void>;
   readonly suggestResolution: (
     componentId: EntityId,
@@ -87,9 +89,14 @@ const ArchitectureWorkspaceContext =
 
 function toWorkspaceError(cause: unknown, fallback: string): WorkspaceError {
   if (cause instanceof ArchitectureRepositoryError) {
-    return { message: cause.message, retryable: cause.retryable };
+    return {
+      code: cause.kind,
+      message: cause.message,
+      retryable: cause.retryable,
+    };
   }
   return {
+    code: "unknown",
     message: cause instanceof Error ? cause.message : fallback,
     retryable: false,
   };
@@ -231,6 +238,19 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       setLoading(false);
     }
   }, [architecture?.id, services, validate]);
+
+  const recoverCorruptData = useCallback(async () => {
+    try {
+      const removed = await services.repository.removeCorruptRecords();
+      await reloadArchitectures();
+      return removed;
+    } catch (cause) {
+      setError(
+        toWorkspaceError(cause, "Unreadable local data could not be removed."),
+      );
+      throw cause;
+    }
+  }, [reloadArchitectures, services.repository]);
 
   useEffect(() => {
     let active = true;
@@ -467,6 +487,7 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       createArchitecture: createNewArchitecture,
       loadArchitecture,
       reloadArchitectures,
+      recoverCorruptData,
       refreshValidation,
       suggestResolution,
       setResolution,
@@ -484,6 +505,7 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       nextId,
       refreshValidation,
       reloadArchitectures,
+      recoverCorruptData,
       services.capabilities,
       services.activityStore,
       setResolution,

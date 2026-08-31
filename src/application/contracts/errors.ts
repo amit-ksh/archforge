@@ -54,10 +54,6 @@ export function structuredError(
     };
   }
   if (error instanceof DomainError) {
-    const details =
-      Object.keys(error.details).length > 0
-        ? { details: error.details }
-        : {};
     return {
       code:
         error.code === "ENTITY_NOT_FOUND"
@@ -66,7 +62,6 @@ export function structuredError(
             ? "CONFLICT"
             : error.code,
       message: error.message,
-      ...details,
       retryable: false,
       correlationId,
     };

@@ -4,11 +4,14 @@ import { describe, expect, it } from "vitest";
 import Home from "@/app/page";
 
 describe("repository baseline", () => {
-  it("renders the generated application through the test harness", () => {
+  it("renders a safe unavailable state when IndexedDB is missing", async () => {
     render(<Home />);
 
     expect(
-      screen.getByRole("heading", { level: 1, name: /to get started/i }),
+      await screen.findByRole("heading", {
+        level: 3,
+        name: "Workspace unavailable",
+      }),
     ).toBeInTheDocument();
   });
 });

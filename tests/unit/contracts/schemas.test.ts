@@ -215,7 +215,7 @@ describe("tool and error contracts", () => {
     );
 
     expect(ErrorSchema.parse(error)).toEqual({
-      code: "ENTITY_NOT_FOUND",
+      code: "NOT_FOUND",
       message: "Component 'c' was not found.",
       retryable: false,
       correlationId: "correlation-domain",

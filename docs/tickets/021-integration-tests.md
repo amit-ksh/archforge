@@ -1,6 +1,6 @@
 # Ticket: Critical integration and end-to-end tests
 
-**Status:** Planned
+**Status:** Complete
 
 ## Objective
 Verify the MVP across domain, IndexedDB, UI, WebMCP, validation, and export boundaries.

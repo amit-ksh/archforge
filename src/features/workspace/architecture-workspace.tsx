@@ -48,6 +48,7 @@ export function ArchitectureWorkspace() {
     loading,
     nextId,
     refreshValidation,
+    recoverCorruptData,
     reloadArchitectures,
     validationError,
     validationIssues,
@@ -64,6 +65,7 @@ export function ArchitectureWorkspace() {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [recovering, setRecovering] = useState(false);
   const componentIds = useMemo(
     () => new Set(architecture?.components.map(({ id }) => id) ?? []),
     [architecture?.components],
@@ -94,16 +96,28 @@ export function ArchitectureWorkspace() {
   }
 
   if (error && !architecture) {
+    const recoveryAction =
+      error.code === "corrupt-data" ? (
+        <Button
+          busy={recovering}
+          onClick={() => {
+            setRecovering(true);
+            void recoverCorruptData()
+              .catch(() => undefined)
+              .finally(() => setRecovering(false));
+          }}
+        >
+          Remove unreadable data
+        </Button>
+      ) : error.retryable ? (
+        <Button onClick={() => void reloadArchitectures()}>
+          Retry loading
+        </Button>
+      ) : undefined;
     return (
       <main className={styles.centeredState}>
         <ErrorState
-          action={
-            error.retryable ? (
-              <Button onClick={() => void reloadArchitectures()}>
-                Retry loading
-              </Button>
-            ) : undefined
-          }
+          action={recoveryAction}
           message={error.message}
           title="Workspace unavailable"
         />

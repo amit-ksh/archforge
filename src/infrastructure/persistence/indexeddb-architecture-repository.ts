@@ -32,6 +32,39 @@ function transactionCompletion(transaction: IDBTransaction): Promise<void> {
   });
 }
 
+function removeCorruptRecords(store: IDBObjectStore): Promise<number> {
+  return new Promise((resolve, reject) => {
+    let removed = 0;
+    const request = store.openCursor();
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const cursor = request.result;
+      if (!cursor) {
+        resolve(removed);
+        return;
+      }
+      try {
+        hydrateArchitecture(cursor.value);
+        cursor.continue();
+      } catch (error) {
+        if (
+          error instanceof ArchitectureRepositoryError &&
+          error.kind === "corrupt-data"
+        ) {
+          const deletion = cursor.delete();
+          deletion.onerror = () => reject(deletion.error);
+          deletion.onsuccess = () => {
+            removed += 1;
+            cursor.continue();
+          };
+          return;
+        }
+        reject(error);
+      }
+    };
+  });
+}
+
 function persistenceError(error: unknown): ArchitectureRepositoryError {
   if (error instanceof ArchitectureRepositoryError) return error;
   if (error instanceof DOMException) {
@@ -111,6 +144,10 @@ export class IndexedDbArchitectureRepository
     await this.withStore("readwrite", async (store) => {
       await requestResult(store.delete(id));
     });
+  }
+
+  async removeCorruptRecords(): Promise<number> {
+    return this.withStore("readwrite", removeCorruptRecords);
   }
 
   close() {
