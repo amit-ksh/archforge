@@ -1,106 +1,201 @@
 # ArchForge
 
-ArchForge is a local-first architecture workspace for designing systems from
-provider-neutral capabilities before choosing technologies or cloud services.
-Requirements, constraints, validation evidence, unresolved decisions, and
-WebMCP activity stay visible alongside the canonical design.
+**An AI-native, local-first workspace for designing system architecture from
+requirements instead of vendor defaults.**
 
-All architecture data is stored in IndexedDB in the current browser profile.
-There is no backend, account, upload, or remote synchronization.
+ArchForge keeps the reasoning behind a design next to the design itself. Model
+the capabilities a system needs, record its requirements and constraints, then
+evaluate technologies, providers, and managed services without collapsing them
+into one premature choice.
 
-## Requirements
+All architecture data stays in IndexedDB in the current browser profile. There
+is no backend, account, upload, or remote synchronization in the MVP.
+
+## Vision
+
+Architecture work often jumps from a problem statement directly to a familiar
+product name. ArchForge makes the missing reasoning explicit:
+
+`Requirements -> Capabilities -> Architecture -> Technology -> Provider -> Cloud Service`
+
+Each stage is modeled separately. A database capability can exist before it is
+resolved to PostgreSQL, AWS, or a particular managed service. Suggestions are
+derived from requirements, hard constraints, operational preferences, catalog
+data, and explicitly modeled existing infrastructure. They remain advisory,
+explainable, and reversible.
+
+This creates one shared, auditable architecture for two ways of working:
+
+- People design through the canvas, evidence panels, inspector, and validation
+  feedback.
+- Agents design through WebMCP tools that use the same commands and domain
+  rules as the UI.
+
+AI activity is visible as provenance, not hidden state. The canonical
+architecture remains the source of truth regardless of who made a change.
+
+## What the MVP includes
+
+- A visual editor for provider-neutral components and typed connections.
+- Requirements, constraints, operational preferences, and existing
+  infrastructure as first-class evidence.
+- Representative capability, technology, AWS, Azure, and cloud-service
+  catalogs.
+- Deterministic, requirement-aware resolution suggestions with reasons,
+  tradeoffs, and blocking conflicts.
+- Structured validation with actionable issues linked to affected entities.
+- Local IndexedDB persistence and multiple local architectures.
+- Local JSON, SVG, and PNG export.
+- Runtime-validated WebMCP tools for design, resolution, analysis, and export.
+- A high-level `design_system` agent workflow with preflight validation and
+  visible step-by-step activity.
+
+## How it is built
+
+ArchForge uses a layered architecture with dependencies pointing inward:
+
+```mermaid
+flowchart LR
+    UI[UI<br/>React and browser interaction] --> Features[Features<br/>editor workflows and projections]
+    Features --> Application[Application<br/>commands, queries, services, and ports]
+    WebMCP[WebMCP<br/>validated agent tools] --> Application
+    Application --> Domain[Domain<br/>canonical model, invariants, resolution, and validation]
+    Infrastructure[Infrastructure<br/>IndexedDB, catalogs, exporters, IDs, and clocks] -. implements ports .-> Application
+```
+
+The key boundaries are:
+
+- **Domain:** a framework-free `Architecture` aggregate containing metadata,
+  requirements, constraints, components, connections, decisions, and revision
+  timestamps.
+- **Application:** typed commands and queries. Every mutation—whether initiated
+  by a person or an agent—passes through the same application services.
+- **Infrastructure:** implementations for persistence, immutable catalogs,
+  export, IDs, and clocks. Persisted and external data is runtime-validated at
+  the boundary.
+- **Features and UI:** projections of canonical state for the canvas,
+  inspectors, evidence, resolution, validation, and activity surfaces.
+- **WebMCP:** strict, versioned adapters over application services. Tool code
+  does not access React or the DOM.
+
+Durable architecture state is deliberately separate from ephemeral editor
+state such as selection, viewport, open panels, and AI activity. Exporters read
+validated snapshots and never mutate the design.
+
+For deeper detail, see [the technical architecture](docs/architecture.md),
+[product scope](docs/product-scope.md), [contract strategy](docs/contracts.md),
+and [WebMCP surface](docs/webmcp.md).
+
+## Run locally
+
+### Requirements
 
 - Node.js 20.9 or newer
 - pnpm 10
 - A current Chromium-based browser for the supported MVP path
 
-## Run locally
+### Start the app
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The first screen offers
-two explicit choices:
+Open [http://localhost:3000](http://localhost:3000). Create an empty
+architecture or choose one of the starter templates. Loading a template creates
+a new local record and does not replace existing work.
 
-- Create an empty architecture and model it yourself.
-- Load the sample architecture. This creates a new local record and never
-  replaces existing work.
-
-Production verification uses:
+For a production build:
 
 ```bash
 pnpm build
 pnpm start
 ```
 
-## Five-minute demo
+## Five-minute walkthrough
 
-1. Select **Load sample architecture**.
-2. Review the requirements and constraints in **Design inputs**.
-3. Select a canvas node, then open **Resolution** to compare evidence,
-   tradeoffs, and still-unresolved provider choices.
-4. Review **Validation**. Issues are deterministic and link back to affected
-   components.
-5. Choose JSON, SVG, or PNG in the command bar and select **Download**. Exports
-   are generated locally from the canonical architecture.
-6. Reload the page. The architecture persists; selection, viewport, and AI
-   activity do not.
+1. Choose a starter template from the welcome screen.
+2. Select a component on the canvas and open **Inspector**.
+3. Use **Evidence** to review or add requirements and constraints.
+4. Open **Resolution** to compare compatible implementation options, reasons,
+   tradeoffs, and unresolved choices.
+5. Open **Signals** to inspect deterministic validation and WebMCP activity.
+6. Select **Export** and download JSON, SVG, or PNG generated locally from the
+   canonical architecture.
+7. Reload the page. The architecture persists; selection, viewport, open
+   panels, and AI activity do not.
 
-On a narrow viewport, use **Inputs** and **Inspector** to open the same controls
-as keyboard-accessible dialogs.
+Press **?** in the editor to view keyboard shortcuts. On narrow viewports, the
+same architecture tools remain available through the responsive overlays.
 
 ## WebMCP support
 
-ArchForge feature-detects the browser's `document.modelContext` API. When that
-experimental WebMCP surface is available, it registers strict, versioned tools
-for architecture editing, resolution, validation, review, risk analysis,
-export, and the high-level `design_system` workflow. Browsers without WebMCP
-still support the complete human editing and export path; tool registration is
-simply skipped.
+ArchForge feature-detects the browser's experimental `document.modelContext`
+API. When available, it registers strict, versioned tools for architectures,
+requirements, components, connections, resolution, validation, review, risk
+analysis, export, and the high-level `design_system` workflow. Without WebMCP,
+the complete human editing and export path still works; registration is simply
+skipped.
 
-WebMCP mutations use the same application command services as the UI. The
-**AI activity** panel shows tool provenance, status, affected entities, safe
-errors, and workflow grouping. Activity is session-only and is not persisted
-with the architecture.
+WebMCP mutations call the same application services as the UI. The **Signals**
+panel records tool name, provenance, status, affected entities, safe errors, and
+workflow grouping for the current session.
 
-The `design_system` workflow performs a zero-write preflight before sequential
-mutations. If a later step fails, earlier writes are retained and the structured
-error reports the completed prefix and recovery context; the workflow does not
-claim rollback.
+The `design_system` workflow validates the complete request and an in-memory
+domain preview before its first write. It then executes primitive commands in
+dependency order. If a later command fails, its structured error identifies the
+completed prefix, persisted revision, and recovery context; earlier writes are
+retained, and the workflow never claims an atomic rollback.
 
 ## Local data and recovery
 
 - Architectures are stored in the `archforge` IndexedDB database for the
   current origin and browser profile.
-- Clearing site data removes local architectures and cannot be undone by the
-  app.
-- The in-app **Clear** command removes design content only after confirmation
-  and preserves the architecture record itself.
-- If an unreadable record is detected, ArchForge offers an explicit recovery
-  action that removes only corrupt records and preserves valid architectures.
-- JSON exports are lossless for the current contract version and can be kept as
-  local snapshots. Import is outside the MVP scope.
+- Clearing browser site data removes local architectures and cannot be undone
+  by the app.
+- **Clear canvas** removes design content only after confirmation and preserves
+  the architecture record.
+- If an unreadable record is detected, recovery removes only corrupt records
+  and preserves valid architectures.
+- JSON export is a lossless snapshot for the current contract version. Import
+  is outside the MVP scope.
 
-## Validation
+## Development
 
 ```bash
 pnpm lint
 pnpm typecheck
-pnpm test
-pnpm test:e2e
 pnpm build
 ```
 
-The Playwright suite runs the configured Chromium MVP path with an isolated
-browser context. It covers local design and reload, resolution and download,
-WebMCP success/failure visibility, narrow keyboard navigation, and corrupt-data
-recovery.
+The repository also contains Vitest integration/unit coverage and Playwright
+end-to-end coverage for the configured Chromium path:
+
+```bash
+pnpm test
+pnpm test:e2e
+```
+
+Source modules follow the same dependency boundaries documented above:
+
+```text
+src/
+  app/             composition root and Next.js entry points
+  application/     commands, contracts, ports, and services
+  components/      reusable UI and canvas rendering
+  domain/          canonical model, resolution, and validation
+  features/        editor workflows and view projections
+  infrastructure/  IndexedDB, catalogs, and export adapters
+  webmcp/          schemas, registration, and tool adapters
+```
 
 ## MVP boundaries
 
-ArchForge does not provide authentication, collaboration, cloud persistence,
-deployment, infrastructure-as-code generation, or automatic vendor selection.
-Technology and provider scores are advisory; explicit user or agent selections
-remain auditable in the canonical architecture.
+The MVP is single-user and browser-local. It does not include authentication,
+collaboration, cloud persistence, deployment, infrastructure-as-code
+generation, cost estimation, live cloud inventory, or automatic vendor
+selection. Catalog coverage is representative rather than exhaustive and is
+currently focused on common web-system capabilities across AWS and Azure.
+
+Technology and provider scores are decision support, not autonomous choices.
+Explicit selections stay visible and auditable in the canonical architecture.
