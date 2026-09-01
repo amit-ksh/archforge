@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 
-import { Button, ErrorState, Input, TextArea } from "@/components/ui";
+import { Button, ErrorState, Input } from "@/components/ui";
 
 import {
   ArchitectureDraftSchema,
@@ -13,13 +13,15 @@ import {
 import styles from "./workspace.module.css";
 
 interface CreateArchitectureFormProps {
+  readonly className?: string;
   readonly onCancel?: () => void;
-  readonly onCreate: (name: string, description?: string) => Promise<void>;
+  readonly onCreate: (name: string) => Promise<void>;
 }
 
-const INITIAL_DRAFT: ArchitectureDraft = { name: "", description: "" };
+const INITIAL_DRAFT: ArchitectureDraft = { name: "" };
 
 export function CreateArchitectureForm({
+  className,
   onCancel,
   onCreate,
 }: CreateArchitectureFormProps) {
@@ -40,7 +42,7 @@ export function CreateArchitectureForm({
     setErrors({});
     setRequestError(null);
     try {
-      await onCreate(parsed.data.name, parsed.data.description || undefined);
+      await onCreate(parsed.data.name);
       setDraft(INITIAL_DRAFT);
     } catch (cause) {
       setRequestError(
@@ -54,13 +56,13 @@ export function CreateArchitectureForm({
   }
 
   return (
-    <form className={styles.inspectorForm} onSubmit={submit}>
+    <form className={[styles.inspectorForm, className].filter(Boolean).join(" ")} onSubmit={submit}>
       {requestError ? (
         <ErrorState message={requestError} title="Architecture not created" />
       ) : null}
       <Input
         error={errors.name}
-        label="Architecture name"
+        label="Name"
         onChange={(event) =>
           setDraft((current) => ({ ...current, name: event.target.value }))
         }
@@ -68,21 +70,9 @@ export function CreateArchitectureForm({
         required
         value={draft.name}
       />
-      <TextArea
-        error={errors.description}
-        label="Description"
-        onChange={(event) =>
-          setDraft((current) => ({
-            ...current,
-            description: event.target.value,
-          }))
-        }
-        placeholder="What system are you designing?"
-        value={draft.description}
-      />
       <div className={styles.formActions}>
         <Button busy={saving} type="submit">
-          Create architecture
+          Create
         </Button>
         {onCancel ? (
           <Button disabled={saving} onClick={onCancel} variant="secondary">

@@ -63,7 +63,7 @@ export const SAMPLE_ARCHITECTURE: DesignSystemWorkflowRequest = {
     },
     {
       key: "orders",
-      capabilityId: "capability-relational-database",
+      capabilityId: "capability-database",
       name: "Orders database",
       description: "Stores transactional order and payment state.",
       position: { x: 720, y: 40 },

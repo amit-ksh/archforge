@@ -1,57 +1,57 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
-  --surface-canvas: #f3f6fa;
-  --surface-1: #f8fafc;
-  --surface-2: #eef2f7;
+  --surface-canvas: #f8fafc;
+  --surface-1: #ffffff;
+  --surface-2: #f1f5f9;
   --surface-base: var(--surface-1);
   --surface-subtle: var(--surface-2);
-  --surface-raised: #fbfcfe;
-  --surface-overlay: #fbfcfe;
-  --text-primary: #18202d;
-  --text-secondary: #414b5a;
-  --text-muted: #5d6878;
-  --text-inverse: #f8fbff;
-  --border-subtle: #dce2ea;
-  --border-default: #c6ced9;
-  --border-strong: #8793a3;
+  --surface-raised: #ffffff;
+  --surface-overlay: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+  --border-subtle: #f1f5f9;
+  --border-default: #e2e8f0;
+  --border-strong: #94a3b8;
 
-  --status-success: #0f766e;
-  --status-success-surface: #dff5f0;
-  --status-warning: #8a5200;
-  --status-warning-surface: #fff1cc;
-  --status-error: #b42318;
-  --status-error-surface: #fee8e7;
-  --status-info: #255bb5;
-  --status-info-surface: #e4edfc;
+  --status-success: #0d9488;
+  --status-success-surface: #f0fdfa;
+  --status-warning: #d97706;
+  --status-warning-surface: #fffbeb;
+  --status-error: #e11d48;
+  --status-error-surface: #fff1f2;
+  --status-info: #0284c7;
+  --status-info-surface: #f0f9ff;
 
-  --interactive: #255bb5;
-  --interactive-hover: #1d4d9c;
-  --interactive-active: #173f82;
-  --selection: #e4edfc;
-  --focus-ring: #3974cf;
+  --interactive: #2563eb;
+  --interactive-hover: #1d4ed8;
+  --interactive-active: #1e40af;
+  --selection: #eff6ff;
+  --focus-ring: #3b82f6;
   --interactive-primary: var(--interactive);
   --interactive-primary-hover: var(--interactive-hover);
   --interactive-primary-active: var(--interactive-active);
-  --interactive-secondary: #e7edf5;
-  --interactive-secondary-hover: #dce5ef;
+  --interactive-secondary: #f1f5f9;
+  --interactive-secondary-hover: #e2e8f0;
   --interactive-focus: var(--focus-ring);
-  --interactive-disabled: #aab4c2;
+  --interactive-disabled: #cbd5e1;
 
-  --semantic-capability: #255bb5;
-  --semantic-capability-surface: #e4edfc;
-  --semantic-technology: #6d4db3;
-  --semantic-technology-surface: #eee8fa;
-  --semantic-provider: #8a5200;
-  --semantic-provider-surface: #fff1cc;
-  --semantic-service: #0f766e;
-  --semantic-service-surface: #dff5f0;
-  --semantic-existing: #526071;
-  --semantic-existing-surface: #e7ebf0;
-  --semantic-ai: #7a3fa0;
-  --semantic-ai-surface: #f1e5f7;
+  --semantic-capability: #2563eb;
+  --semantic-capability-surface: #eff6ff;
+  --semantic-technology: #7c3aed;
+  --semantic-technology-surface: #f5f3ff;
+  --semantic-provider: #d97706;
+  --semantic-provider-surface: #fffbeb;
+  --semantic-service: #0d9488;
+  --semantic-service-surface: #f0fdfa;
+  --semantic-existing: #64748b;
+  --semantic-existing-surface: #f8fafc;
+  --semantic-ai: #9333ea;
+  --semantic-ai-surface: #faf5ff;
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -62,12 +62,18 @@
   --space-7: 3rem;
   --space-8: 4rem;
 
-  --radius-control: 0.25rem;
-  --radius-card: 0.5rem;
-  --radius-node: 0.5rem;
+  --radius-control: 0.375rem;
+  --radius-card: 0.625rem;
+  --radius-node: 0.625rem;
   --radius-panel: 0.75rem;
-  --shadow-raised: 0 1px 2px rgb(24 32 45 / 0.08), 0 6px 18px rgb(24 32 45 / 0.06);
-  --shadow-overlay: 0 18px 48px rgb(24 32 45 / 0.2);
+  --shadow-raised: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.04);
+  --shadow-overlay: 0 20px 48px -12px rgba(15, 23, 42, 0.15);
+  --shadow-float: 0 10px 30px -6px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-toolbar: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --canvas-dot: #cbd5e1;
+  --surface-toolbar: rgba(255, 255, 255, 0.94);
+  --surface-glass: rgba(255, 255, 255, 0.88);
+
   --z-canvas: 0;
   --z-chrome: 10;
   --z-sticky: 20;
@@ -89,57 +95,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --surface-canvas: #0d131d;
-    --surface-1: #111722;
-    --surface-2: #18212e;
-    --surface-raised: #1c2533;
-    --surface-overlay: #202a39;
-    --text-primary: #edf2f7;
-    --text-secondary: #c3ccd8;
-    --text-muted: #9ca8b8;
-    --text-inverse: #101722;
-    --border-subtle: #283445;
-    --border-default: #3a485b;
-    --border-strong: #6f7d90;
-
-    --status-success: #67d5c8;
-    --status-success-surface: #153d3a;
-    --status-warning: #f5bf61;
-    --status-warning-surface: #473516;
-    --status-error: #ff9188;
-    --status-error-surface: #4b2425;
-    --status-info: #8ab4ff;
-    --status-info-surface: #1d3458;
-
-    --interactive: #8ab4ff;
-    --interactive-hover: #a8c7ff;
-    --interactive-active: #c3d8ff;
-    --selection: #1d3458;
-    --focus-ring: #a8c7ff;
-    --interactive-secondary: #263244;
-    --interactive-secondary-hover: #303e52;
-    --interactive-disabled: #596678;
-
-    --semantic-capability: #8ab4ff;
-    --semantic-capability-surface: #1d3458;
-    --semantic-technology: #c5a5ff;
-    --semantic-technology-surface: #382d54;
-    --semantic-provider: #f5bf61;
-    --semantic-provider-surface: #473516;
-    --semantic-service: #67d5c8;
-    --semantic-service-surface: #153d3a;
-    --semantic-existing: #b3becc;
-    --semantic-existing-surface: #303a47;
-    --semantic-ai: #dda5f2;
-    --semantic-ai-surface: #45294f;
-
-    --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.24), 0 8px 22px rgb(0 0 0 / 0.18);
-    --shadow-overlay: 0 22px 56px rgb(0 0 0 / 0.42);
-  }
 }
 
 *,

@@ -145,103 +145,120 @@ export function ConnectionEditor({
   if (architecture.components.length < 2) {
     return (
       <EmptyState
-        message="Add at least two capabilities before defining a directed relationship."
+        message="Add at least two capabilities on the canvas before connecting them."
         title="Connections need two components"
       />
     );
   }
 
   return (
-    <div className={styles.connectionEditor}>
+    <div className={styles.inspectorBody}>
       {requestError ? (
         <ErrorState message={requestError} title="Connection change failed" />
       ) : null}
-      <form className={styles.inspectorForm} onSubmit={save}>
-        <div className={styles.formHeading}>
-          <h3>{editingId ? "Edit connection" : "New connection"}</h3>
+
+      {/* Connection Form Card */}
+      <div className={styles.panelSectionCard}>
+        <div className={styles.sectionHeaderRow}>
+          <h4>{editingId ? "Edit connection" : "Add connection"}</h4>
           <Badge tone="info">Directed</Badge>
         </div>
-        <Select
-          error={errors.sourceComponentId}
-          label="Source"
-          onChange={(event) =>
-            setDraft((current) => ({
-              ...current,
-              sourceComponentId: event.target.value,
-            }))
-          }
-          required
-          value={draft.sourceComponentId}
-        >
-          <option value="">Choose source</option>
-          {architecture.components.map((component) => (
-            <option key={component.id} value={component.id}>
-              {component.name}
-            </option>
-          ))}
-        </Select>
-        <Select
-          error={errors.targetComponentId}
-          label="Target"
-          onChange={(event) =>
-            setDraft((current) => ({
-              ...current,
-              targetComponentId: event.target.value,
-            }))
-          }
-          required
-          value={draft.targetComponentId}
-        >
-          <option value="">Choose target</option>
-          {architecture.components.map((component) => (
-            <option key={component.id} value={component.id}>
-              {component.name}
-            </option>
-          ))}
-        </Select>
-        <Select
-          label="Relationship"
-          onChange={(event) =>
-            setDraft((current) => ({
-              ...current,
-              relationship: event.target.value as ConnectionRelationship,
-            }))
-          }
-          value={draft.relationship}
-        >
-          {RELATIONSHIPS.map((relationship) => (
-            <option key={relationship} value={relationship}>
-              {relationship}
-            </option>
-          ))}
-        </Select>
-        <Input
-          error={errors.label}
-          helperText="Optional; use when the relationship is not obvious."
-          label="Label"
-          onChange={(event) =>
-            setDraft((current) => ({ ...current, label: event.target.value }))
-          }
-          value={draft.label}
-        />
-        <div className={styles.formActions}>
-          <Button busy={saving} type="submit">
-            {editingId ? "Save connection" : "Connect components"}
-          </Button>
-          {editingId ? (
-            <Button onClick={reset} variant="secondary">
-              Cancel edit
-            </Button>
-          ) : null}
-        </div>
-      </form>
 
+        <form className={styles.inspectorForm} onSubmit={save}>
+          <div className={styles.formGrid2}>
+            <Select
+              error={errors.sourceComponentId}
+              label="Source"
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  sourceComponentId: event.target.value,
+                }))
+              }
+              required
+              value={draft.sourceComponentId}
+            >
+              <option value="">Choose source</option>
+              {architecture.components.map((component) => (
+                <option key={component.id} value={component.id}>
+                  {component.name}
+                </option>
+              ))}
+            </Select>
+
+            <Select
+              error={errors.targetComponentId}
+              label="Target"
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  targetComponentId: event.target.value,
+                }))
+              }
+              required
+              value={draft.targetComponentId}
+            >
+              <option value="">Choose target</option>
+              {architecture.components.map((component) => (
+                <option key={component.id} value={component.id}>
+                  {component.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          <div className={styles.formGrid2}>
+            <Select
+              label="Relationship"
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  relationship: event.target.value as ConnectionRelationship,
+                }))
+              }
+              value={draft.relationship}
+            >
+              {RELATIONSHIPS.map((relationship) => (
+                <option key={relationship} value={relationship}>
+                  {relationship}
+                </option>
+              ))}
+            </Select>
+
+            <Input
+              error={errors.label}
+              label="Protocol / Label"
+              onChange={(event) =>
+                setDraft((current) => ({ ...current, label: event.target.value }))
+              }
+              placeholder="e.g. gRPC, HTTPS, Event"
+              value={draft.label}
+            />
+          </div>
+
+          <div className={styles.inspectorActionsRow}>
+            <Button busy={saving} type="submit">
+              {editingId ? "Update Connection" : "Connect Components"}
+            </Button>
+            {editingId ? (
+              <Button onClick={reset} variant="secondary">
+                Cancel
+              </Button>
+            ) : null}
+          </div>
+        </form>
+      </div>
+
+      {/* Saved Connections List */}
       <div className={styles.connectionListSection}>
-        <h3>Saved connections</h3>
+        <div className={styles.sectionHeaderRow}>
+          <h4>Saved Connections ({architecture.connections.length})</h4>
+        </div>
+
         {architecture.connections.length === 0 ? (
-          <p className={styles.mutedCopy}>No relationships have been modeled yet.</p>
+          <p className={styles.emptyNotice}>No relationships modeled yet. Use the form above or connect directly on canvas.</p>
         ) : (
-          <ul className={styles.connectionList}>
+          <div className={styles.cardsList}>
             {architecture.connections.map((connection) => {
               const source = architecture.components.find(
                 ({ id }) => id === connection.sourceComponentId,
@@ -250,39 +267,49 @@ export function ConnectionEditor({
                 ({ id }) => id === connection.targetComponentId,
               );
               return (
-                <li key={connection.id}>
-                  <div>
-                    <strong>
-                      {source?.name ?? connection.sourceComponentId} → {" "}
-                      {target?.name ?? connection.targetComponentId}
-                    </strong>
-                    <span>
-                      {connection.relationship}
-                      {connection.label ? ` · ${connection.label}` : ""}
-                    </span>
+                <div className={styles.connectionCard} key={connection.id}>
+                  <div className={styles.connectionCardMain}>
+                    <div className={styles.connectionCardRoute}>
+                      <span className={styles.compNodeName}>{source?.name ?? "Unknown"}</span>
+                      <span className={styles.arrowIcon}>→</span>
+                      <span className={styles.compNodeName}>{target?.name ?? "Unknown"}</span>
+                    </div>
+                    <div className={styles.connectionCardMeta}>
+                      <span className={styles.relationshipBadge}>{connection.relationship}</span>
+                      {connection.label ? (
+                        <span className={styles.connectionLabelBadge}>{connection.label}</span>
+                      ) : null}
+                    </div>
                   </div>
-                  <div className={styles.compactActions}>
-                    <Button
+
+                  <div className={styles.cardActions}>
+                    <button
+                      className={styles.cardIconBtn}
                       disabled={saving}
                       onClick={() => edit(connection)}
-                      size="compact"
-                      variant="ghost"
+                      title="Edit connection"
+                      type="button"
                     >
-                      Edit
-                    </Button>
-                    <Button
+                      <svg fill="none" height="13" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="13">
+                        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                      </svg>
+                    </button>
+                    <button
+                      className={`${styles.cardIconBtn} ${styles.cardIconBtnDanger}`}
                       disabled={saving}
                       onClick={() => void remove(connection.id)}
-                      size="compact"
-                      variant="ghost"
+                      title="Remove connection"
+                      type="button"
                     >
-                      Remove
-                    </Button>
+                      <svg fill="none" height="13" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="13">
+                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      </svg>
+                    </button>
                   </div>
-                </li>
+                </div>
               );
             })}
-          </ul>
+          </div>
         )}
       </div>
     </div>

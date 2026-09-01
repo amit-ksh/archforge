@@ -12,6 +12,9 @@ export interface CanvasNodeProjection {
   readonly description: string;
   readonly position: Position;
   readonly existingInfrastructure: boolean;
+  readonly technologyId: EntityId | null;
+  readonly providerId: EntityId | null;
+  readonly cloudServiceId: EntityId | null;
   readonly resolutionTrail: readonly EntityId[];
 }
 
@@ -41,6 +44,9 @@ export function projectArchitecture(architecture: Architecture): CanvasProjectio
       description: component.description,
       position: component.position,
       existingInfrastructure: component.existingInfrastructure,
+      technologyId: component.technologyId,
+      providerId: component.providerId,
+      cloudServiceId: component.cloudServiceId,
       resolutionTrail: [
         component.technologyId,
         component.providerId,

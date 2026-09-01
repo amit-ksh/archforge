@@ -26,7 +26,7 @@ import {
   ValidationService,
 } from "@/application/services";
 import type { Architecture, EntityId } from "@/domain/architecture";
-import type { CapabilityDefinition } from "@/domain/catalog";
+import type { CapabilityDefinition, TechnologyDefinition } from "@/domain/catalog";
 import type {
   ResolutionCandidateKind,
   ResolutionResult,
@@ -63,6 +63,7 @@ interface ArchitectureWorkspaceContextValue {
   readonly architecture: Architecture | null;
   readonly architectures: readonly Architecture[];
   readonly capabilities: readonly CapabilityDefinition[];
+  readonly technologies: readonly TechnologyDefinition[];
   readonly loading: boolean;
   readonly error: WorkspaceError | null;
   readonly validationIssues: readonly ValidationIssue[];
@@ -87,6 +88,7 @@ interface ArchitectureWorkspaceContextValue {
     candidateKind: ResolutionCandidateKind,
     candidateId: EntityId | null,
   ) => Promise<void>;
+  readonly webMcpTools: readonly import("@/webmcp").WebMcpToolDefinition[];
   readonly nextId: (prefix: string) => EntityId;
   readonly dispatchCommand: (command: ArchitectureCommand) => Promise<void>;
   readonly downloadArchitecture: (format: ExportFormat) => Promise<ExportResult>;
@@ -192,6 +194,7 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       clock,
       idGenerator,
       capabilities: componentCatalog.listCapabilities(),
+      technologies: componentCatalog.listTechnologies(),
       architectureService,
       commandService,
       resolutionService,
@@ -562,6 +565,7 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       architecture,
       architectures,
       capabilities: services.capabilities,
+      technologies: services.technologies,
       loading,
       error,
       validationIssues,
@@ -576,6 +580,7 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       refreshValidation,
       suggestResolution,
       setResolution,
+      webMcpTools: services.webMcpTools,
       nextId,
       dispatchCommand,
       downloadArchitecture,
@@ -595,7 +600,9 @@ export function ArchitectureProvider({ children }: { readonly children: ReactNod
       reloadArchitectures,
       recoverCorruptData,
       services.capabilities,
+      services.technologies,
       services.activityStore,
+      services.webMcpTools,
       setResolution,
       suggestResolution,
       validationError,

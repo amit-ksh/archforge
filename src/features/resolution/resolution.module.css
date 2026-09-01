@@ -140,28 +140,36 @@
 }
 
 .candidate {
-  background: var(--surface-base);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   display: grid;
-  gap: var(--space-3);
-  padding: var(--space-3);
+  gap: 10px;
+  padding: 12px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: border-color 120ms ease;
+}
+
+.candidate:hover {
+  border-color: #cbd5e1;
 }
 
 .candidate[data-selected="true"] {
-  background: var(--selection);
-  border-color: var(--interactive-primary);
-  box-shadow: inset 3px 0 0 var(--interactive-primary);
+  background: #f8fafc;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1.5px #2563eb;
 }
 
 .candidateHeader > div:first-child {
   display: grid;
-  gap: var(--space-2);
+  gap: 4px;
   min-width: 0;
 }
 
 .candidate h4 {
-  font-size: 0.875rem;
+  font-size: 13px;
+  font-weight: 650;
+  color: #0f172a;
 }
 
 .candidate code,

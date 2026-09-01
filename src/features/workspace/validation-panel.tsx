@@ -38,8 +38,8 @@ export function ValidationPanel({
   if (loading && issues.length === 0) {
     return (
       <div className={styles.validationLoading}>
-        <Skeleton label="Validating architecture" />
-        <Skeleton label="Checking architecture rules" />
+        <Skeleton label="Validating architecture rules..." />
+        <Skeleton label="Checking component resolutions..." />
       </div>
     );
   }
@@ -61,46 +61,50 @@ export function ValidationPanel({
   if (issues.length === 0) {
     return (
       <EmptyState
-        message="No architecture rules currently report a problem."
-        title="No validation issues"
+        message="All architecture rules, capability bindings, and contracts are valid."
+        title="No validation issues found"
       />
     );
   }
 
   return (
-    <ul className={styles.validationList}>
-      {issues.map((issue) => {
-        const componentId = issue.affectedEntityIds.find((id) =>
-          architectureComponentIds.has(id),
-        );
-        return (
-          <li key={issue.id}>
-            <div
-              className={styles.validationIssue}
-              id={`validation-${issue.id}`}
-              tabIndex={-1}
-            >
-              <Badge tone={toneBySeverity[issue.severity]}>
-                {issue.severity}
-              </Badge>
-              <div>
-                <strong>{issue.message}</strong>
-                <p>{issue.suggestedAction}</p>
-                <code>{issue.rule}</code>
+    <div className={styles.inspectorBody}>
+      <div className={styles.sectionHeaderRow}>
+        <h4>Deterministic Signals ({issues.length})</h4>
+      </div>
+
+      <div className={styles.cardsList}>
+        {issues.map((issue) => {
+          const componentId = issue.affectedEntityIds.find((id) =>
+            architectureComponentIds.has(id),
+          );
+          return (
+            <div className={styles.validationCard} key={issue.id}>
+              <div className={styles.validationCardTop}>
+                <Badge tone={toneBySeverity[issue.severity]}>
+                  {issue.severity.toUpperCase()}
+                </Badge>
+                <code className={styles.ruleCode}>{issue.rule}</code>
               </div>
+
+              <strong className={styles.validationCardMessage}>{issue.message}</strong>
+              <p className={styles.validationCardAction}>{issue.suggestedAction}</p>
+
               {componentId ? (
-                <Button
-                  onClick={() => onNavigate(componentId)}
-                  size="compact"
-                  variant="ghost"
-                >
-                  Inspect
-                </Button>
+                <div className={styles.validationCardFooter}>
+                  <Button
+                    onClick={() => onNavigate(componentId)}
+                    size="compact"
+                    variant="secondary"
+                  >
+                    Inspect Component
+                  </Button>
+                </div>
               ) : null}
             </div>
-          </li>
-        );
-      })}
-    </ul>
+          );
+        })}
+      </div>
+    </div>
   );
 }

@@ -1,104 +1,190 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useArchitectureWorkspace } from "@/app/architecture-provider";
 import type { ExportFormat } from "@/application/contracts";
 import { ArchitectureCanvas } from "@/components/canvas";
-import {
-  Button,
-  Dialog,
-  ErrorState,
-  InspectorShell,
-  Panel,
-  Skeleton,
-  Tabs,
-  TabsList,
-  TabsPanel,
-  TabsTrigger,
-} from "@/components/ui";
+import { Button, Dialog, ErrorState, Skeleton } from "@/components/ui";
 import type { EntityId } from "@/domain/architecture";
-import type { CapabilityDefinition } from "@/domain/catalog";
-import { ActivityPanel } from "@/features/activity";
-import { RequirementsWorkspace } from "@/features/requirements";
-import { ResolutionWorkspace } from "@/features/resolution";
+import type { EditorTool } from "@/features/editor";
 
-import { ArchitectureToolbar } from "./architecture-toolbar";
-import { ComponentInspector } from "./component-inspector";
-import { ComponentLibrary } from "./component-library";
-import { ConnectionEditor } from "./connection-editor";
+import { CanvasToolbar } from "./canvas-toolbar";
 import { CreateArchitectureForm } from "./create-architecture-form";
-import { useNarrowLayout } from "./use-narrow-layout";
-import { ValidationPanel } from "./validation-panel";
+import { ExportPopover } from "./export-popover";
+import { FloatingInspector } from "./floating-inspector";
+import { MinimalHeader } from "./minimal-header";
+import { PrimitivePicker } from "./primitive-picker";
+import { ShortcutsModal } from "./shortcuts-modal";
+import { ARCHITECTURE_TEMPLATES, type ArchitectureTemplate } from "./templates-catalog";
+import { WebMcpToolsModal } from "./webmcp-tools-modal";
 import styles from "./workspace.module.css";
-
-type InspectorTab = "component" | "resolution" | "connections";
-type InputTab = "requirements" | "constraints" | "library";
-type SignalTab = "validation" | "activity";
 
 export function ArchitectureWorkspace() {
   const {
     architecture,
-    activityStore,
     architectures,
     capabilities,
+    technologies,
     createArchitecture,
     dispatchCommand,
     downloadArchitecture,
     error,
     loadArchitecture,
-    loadSampleArchitecture,
     loading,
     nextId,
-    refreshValidation,
     recoverCorruptData,
     reloadArchitectures,
-    validationError,
-    validationIssues,
-    validationLoading,
   } = useArchitectureWorkspace();
-  const narrow = useNarrowLayout();
-  const [selectedId, setSelectedComponentId] =
-    useState<EntityId | null>(null);
-  const [inspectorTab, setInspectorTab] = useState<InspectorTab>("component");
-  const [inputTab, setInputTab] = useState<InputTab>("requirements");
-  const [signalTab, setSignalTab] = useState<SignalTab>("validation");
+
+  const [activeTool, setActiveTool] = useState<EditorTool>("select");
+  const [selectedId, setSelectedComponentId] = useState<EntityId | null>(null);
+  const [inspectorOpen, setInspectorOpen] = useState(false);
+  const [primitivePickerOpen, setPrimitivePickerOpen] = useState(false);
+  const [webMcpOpen, setWebMcpOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const [newArchitectureOpen, setNewArchitectureOpen] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
-  const [libraryOpen, setLibraryOpen] = useState(false);
-  const [inspectorOpen, setInspectorOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [recovering, setRecovering] = useState(false);
-  const [loadingSample, setLoadingSample] = useState(false);
-  const [sampleError, setSampleError] = useState<string | null>(null);
-  const [exportFormat, setExportFormat] = useState<ExportFormat>("json");
   const [exporting, setExporting] = useState(false);
-  const [exportError, setExportError] = useState<string | null>(null);
+
+  // Keyboard shortcut listener for global actions (I, ?, etc.)
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        setWebMcpOpen((prev) => !prev);
+      } else if (e.key === "i" || e.key === "I") {
+        if (!e.metaKey && !e.ctrlKey) {
+          e.preventDefault();
+          setInspectorOpen((prev) => !prev);
+        }
+      } else if (e.key === "?" && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setShortcutsOpen(true);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const componentIds = useMemo(
     () => new Set(architecture?.components.map(({ id }) => id) ?? []),
     [architecture?.components],
-  );
-  const navigableEntityIds = useMemo(
-    () =>
-      new Set([
-        architecture?.id,
-        ...(architecture?.requirements.map(({ id }) => id) ?? []),
-        ...(architecture?.constraints.map(({ id }) => id) ?? []),
-        ...(architecture?.components.map(({ id }) => id) ?? []),
-        ...(architecture?.connections.map(({ id }) => id) ?? []),
-      ].filter((id): id is EntityId => Boolean(id))),
-    [architecture],
   );
 
   const selectedComponentId =
     selectedId && componentIds.has(selectedId) ? selectedId : null;
 
+  async function handleRenameArchitecture(newName: string) {
+    if (!architecture) return;
+    await dispatchCommand({
+      type: "architecture.update",
+      architectureId: architecture.id,
+      patch: { name: newName },
+    });
+  }
+
+  async function handleLoadTemplate(template: ArchitectureTemplate) {
+    const arch = await createArchitecture(
+      template.request.metadata.name,
+      template.request.metadata.description,
+    );
+
+    const componentKeyToId = new Map<string, string>();
+    for (const comp of template.request.components) {
+      const compId = nextId("component");
+      componentKeyToId.set(comp.key, compId);
+      await dispatchCommand({
+        type: "component.add",
+        architectureId: arch.id,
+        component: {
+          id: compId,
+          capabilityId: comp.capabilityId,
+          name: comp.name,
+          description: comp.description ?? "",
+          position: comp.position ?? { x: 100, y: 100 },
+          existingInfrastructure: comp.existingInfrastructure ?? false,
+        },
+      });
+    }
+
+    for (const conn of template.request.connections) {
+      const srcId = componentKeyToId.get(conn.sourceComponentKey);
+      const tgtId = componentKeyToId.get(conn.targetComponentKey);
+      if (srcId && tgtId) {
+        await dispatchCommand({
+          type: "connection.connect",
+          architectureId: arch.id,
+          connection: {
+            id: nextId("connection"),
+            sourceComponentId: srcId,
+            targetComponentId: tgtId,
+            relationship: conn.relationship,
+            label: conn.label ?? "",
+          },
+        });
+      }
+    }
+
+    for (const res of template.request.resolutions) {
+      const compId = componentKeyToId.get(res.componentKey);
+      if (compId && res.technologyId) {
+        await dispatchCommand({
+          type: "resolution.set-technology",
+          architectureId: arch.id,
+          componentId: compId,
+          technologyId: res.technologyId,
+        });
+      }
+    }
+  }
+
+  async function clearCurrentArchitecture() {
+    if (!architecture) return;
+    setClearing(true);
+    try {
+      await dispatchCommand({
+        type: "architecture.clear",
+        architectureId: architecture.id,
+      });
+      setSelectedComponentId(null);
+      setClearOpen(false);
+    } finally {
+      setClearing(false);
+    }
+  }
+
+  async function handleExport(format: ExportFormat) {
+    setExporting(true);
+    try {
+      await downloadArchitecture(format);
+      setExportOpen(false);
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  function handleSelectCapabilityFromPicker(capabilityId: string) {
+    setActiveTool(capabilityId);
+    setPrimitivePickerOpen(false);
+  }
+
   if (loading && !architecture) {
     return (
-      <main className={styles.loadingShell} id="main-content">
-        <Skeleton label="Loading architecture workspace" />
-        <Skeleton label="Loading saved architectures" />
-        <Skeleton label="Loading canvas" />
+      <main className={styles.loadingViewport} id="main-content">
+        <Skeleton label="Loading canvas..." />
       </main>
     );
   }
@@ -118,10 +204,9 @@ export function ArchitectureWorkspace() {
           Remove unreadable data
         </Button>
       ) : error.retryable ? (
-        <Button onClick={() => void reloadArchitectures()}>
-          Retry loading
-        </Button>
+        <Button onClick={() => void reloadArchitectures()}>Retry loading</Button>
       ) : undefined;
+
     return (
       <main className={styles.centeredState} id="main-content">
         <ErrorState
@@ -136,409 +221,138 @@ export function ArchitectureWorkspace() {
 
   if (!architecture) {
     return (
-      <main className={styles.welcomeShell} id="main-content">
-        <div className={styles.welcomeBrand}>
-          <span className={styles.brandMark} aria-hidden="true">
-            AF
-          </span>
-          <span>ArchForge</span>
-        </div>
-        <section className={styles.welcomeCard}>
-          <div>
-            <p className={styles.eyebrow}>Local-first architecture design</p>
-            <h1>Shape the system before choosing the stack.</h1>
-            <p>
-              Start with provider-neutral capabilities, connect them into a
-              design, then use explicit evidence to resolve technologies.
-            </p>
-            <ul className={styles.welcomeBenefits}>
-              <li>Model requirements before selecting vendors.</li>
-              <li>See deterministic validation and unresolved decisions.</li>
-              <li>Keep every architecture in this browser&apos;s local storage.</li>
-            </ul>
+      <main className={styles.welcomeViewport} id="main-content">
+        <div className={styles.welcomeHero}>
+          <div className={styles.welcomeBrand}>
+            <span className={styles.brandIconLarge} aria-hidden="true">AF</span>
+            <h1>ArchForge</h1>
           </div>
-          <div className={styles.welcomeActions}>
+          <div className={styles.welcomeCustomSection}>
             <CreateArchitectureForm
-              onCreate={async (name, description) => {
-                await createArchitecture(name, description);
+              className={styles.welcomeCreateForm}
+              onCreate={async (name) => {
+                await createArchitecture(name);
               }}
             />
-            <div className={styles.sampleOption}>
-              <span aria-hidden="true">or</span>
-              <p>
-                Explore a realistic checkout design with requirements,
-                connections, partial resolutions, and validation issues.
-              </p>
-              <Button
-                busy={loadingSample}
-                onClick={() => {
-                  setLoadingSample(true);
-                  setSampleError(null);
-                  void loadSampleArchitecture()
-                    .catch((cause: unknown) => {
-                      setSampleError(
-                        cause instanceof Error
-                          ? cause.message
-                          : "The sample architecture could not be loaded.",
-                      );
-                    })
-                    .finally(() => setLoadingSample(false));
-                }}
-                variant="secondary"
-              >
-                Load sample architecture
-              </Button>
-              {sampleError ? (
-                <ErrorState
-                  message={sampleError}
-                  title="Sample not loaded"
-                />
-              ) : null}
-            </div>
           </div>
-        </section>
+
+          <h2 className={styles.welcomeTemplatesHeading}>Choose a template</h2>
+          <div className={styles.welcomeTemplatesGrid}>
+            {ARCHITECTURE_TEMPLATES.map((tmpl) => (
+              <button
+                key={tmpl.id}
+                className={styles.welcomeTemplateCard}
+                onClick={() => void handleLoadTemplate(tmpl)}
+                type="button"
+              >
+                <strong>{tmpl.name}</strong>
+              </button>
+            ))}
+          </div>
+        </div>
       </main>
     );
   }
 
-  async function addCapability(capability: CapabilityDefinition) {
-    if (!architecture) return;
-    const componentId = nextId("component");
-    const index = architecture.components.length;
-    await dispatchCommand({
-      type: "component.add",
-      architectureId: architecture.id,
-      component: {
-        id: componentId,
-        capabilityId: capability.id,
-        name: capability.label,
-        description: capability.description,
-        position: {
-          x: 120 + (index % 3) * 300,
-          y: 140 + Math.floor(index / 3) * 190,
-        },
-        existingInfrastructure: false,
-      },
-    });
-    setSelectedComponentId(componentId);
-    setInspectorTab("component");
-    if (narrow) {
-      setLibraryOpen(false);
-      setInspectorOpen(true);
-    }
-  }
-
-  async function clearArchitecture() {
-    if (!architecture) return;
-    setClearing(true);
-    try {
-      await dispatchCommand({
-        type: "architecture.clear",
-        architectureId: architecture.id,
-      });
-      setSelectedComponentId(null);
-      setClearOpen(false);
-    } finally {
-      setClearing(false);
-    }
-  }
-
-  async function exportCurrentArchitecture() {
-    setExporting(true);
-    setExportError(null);
-    try {
-      await downloadArchitecture(exportFormat);
-    } catch (cause) {
-      setExportError(
-        cause instanceof Error
-          ? cause.message
-          : "The architecture export could not be created.",
-      );
-    } finally {
-      setExporting(false);
-    }
-  }
-
-  function navigateToComponent(componentId: EntityId) {
-    setSelectedComponentId(componentId);
-    setInspectorTab("component");
-    if (narrow) setInspectorOpen(true);
-  }
-
-  function navigateToEntity(entityId: EntityId) {
-    if (!architecture) return;
-    if (architecture.components.some(({ id }) => id === entityId)) {
-      navigateToComponent(entityId);
-      return;
-    }
-    if (architecture.requirements.some(({ id }) => id === entityId)) {
-      setInputTab("requirements");
-      if (narrow) setLibraryOpen(true);
-      return;
-    }
-    if (architecture.constraints.some(({ id }) => id === entityId)) {
-      setInputTab("constraints");
-      if (narrow) setLibraryOpen(true);
-      return;
-    }
-    if (architecture.connections.some(({ id }) => id === entityId)) {
-      setInspectorTab("connections");
-      if (narrow) setInspectorOpen(true);
-      return;
-    }
-    if (architecture.id === entityId) {
-      document.getElementById("workspace-title")?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }
-  }
-
-  function inspectValidationIssue(issueId: EntityId) {
-    setLibraryOpen(false);
-    requestAnimationFrame(() => {
-      const issue = document.getElementById(`validation-${issueId}`);
-      issue?.scrollIntoView({ behavior: "smooth", block: "center" });
-      issue?.focus({ preventScroll: true });
-    });
-  }
-
-  const designInputs = (
-    <Tabs
-      onValueChange={(value) => setInputTab(value as InputTab)}
-      value={inputTab}
-    >
-      <TabsList aria-label="Design input sections">
-        <TabsTrigger value="requirements">Requirements</TabsTrigger>
-        <TabsTrigger value="constraints">Constraints</TabsTrigger>
-        <TabsTrigger value="library">Library</TabsTrigger>
-      </TabsList>
-      <TabsPanel value="requirements">
-        <RequirementsWorkspace
-          architecture={architecture}
-          dispatchCommand={dispatchCommand}
-          issues={validationIssues}
-          nextId={nextId}
-          onInspectIssue={inspectValidationIssue}
-          section="requirements"
-        />
-      </TabsPanel>
-      <TabsPanel value="constraints">
-        <RequirementsWorkspace
-          architecture={architecture}
-          dispatchCommand={dispatchCommand}
-          issues={validationIssues}
-          nextId={nextId}
-          onInspectIssue={inspectValidationIssue}
-          section="constraints"
-        />
-      </TabsPanel>
-      <TabsPanel value="library">
-        <ComponentLibrary capabilities={capabilities} onAdd={addCapability} />
-      </TabsPanel>
-    </Tabs>
-  );
-  const inspector = (
-    <Tabs
-      onValueChange={(value) => setInspectorTab(value as InspectorTab)}
-      value={inspectorTab}
-    >
-      <TabsList aria-label="Inspector sections">
-        <TabsTrigger value="component">Component</TabsTrigger>
-        <TabsTrigger value="resolution">Resolution</TabsTrigger>
-        <TabsTrigger value="connections">Connections</TabsTrigger>
-      </TabsList>
-      <TabsPanel value="component">
-        <ComponentInspector
-          key={selectedComponentId ?? "empty"}
-          architecture={architecture}
-          capabilities={capabilities}
-          dispatchCommand={dispatchCommand}
-          onDeleted={() => setSelectedComponentId(null)}
-          selectedComponentId={selectedComponentId}
-        />
-      </TabsPanel>
-      <TabsPanel value="resolution">
-        <ResolutionWorkspace
-          architecture={architecture}
-          selectedComponentId={selectedComponentId}
-        />
-      </TabsPanel>
-      <TabsPanel value="connections">
-        <ConnectionEditor
-          architecture={architecture}
-          dispatchCommand={dispatchCommand}
-          nextId={nextId}
-        />
-      </TabsPanel>
-    </Tabs>
-  );
-
   return (
-    <main className={styles.workspace} id="main-content">
-      <ArchitectureToolbar
+    <main className={styles.editorViewport} id="main-content">
+      {/* Minimal Header */}
+      <MinimalHeader
         architecture={architecture}
         architectures={architectures}
-        exportFormat={exportFormat}
-        exporting={exporting}
-        loading={loading}
-        narrow={narrow}
-        onClear={() => setClearOpen(true)}
-        onExport={() => void exportCurrentArchitecture()}
-        onExportFormatChange={setExportFormat}
-        onLoad={async (id) => {
-          setSelectedComponentId(null);
-          await loadArchitecture(id);
-        }}
-        onNew={() => setNewArchitectureOpen(true)}
-        onOpenInspector={() => setInspectorOpen(true)}
-        onOpenInputs={() => setLibraryOpen(true)}
-        validationCount={validationIssues.length}
+        inspectorOpen={inspectorOpen}
+        onClearArchitecture={() => setClearOpen(true)}
+        onLoadArchitecture={loadArchitecture}
+        onNewArchitecture={() => setNewArchitectureOpen(true)}
+        onOpenExport={() => setExportOpen(true)}
+        onOpenShortcuts={() => setShortcutsOpen(true)}
+        onOpenWebMcp={() => setWebMcpOpen(true)}
+        onRenameArchitecture={handleRenameArchitecture}
+        onToggleInspector={() => setInspectorOpen((prev) => !prev)}
       />
 
-      {error ? (
-        <div className={styles.workspaceError} role="alert">
-          <span>{error.message}</span>
-          {error.retryable ? (
-            <Button
-              onClick={() => void reloadArchitectures()}
-              size="compact"
-              variant="secondary"
-            >
-              Retry
-            </Button>
-          ) : null}
-        </div>
-      ) : null}
-
-      {exportError ? (
-        <div className={styles.workspaceError} role="alert">
-          <span>{exportError}</span>
-          <Button
-            onClick={() => void exportCurrentArchitecture()}
-            size="compact"
-            variant="secondary"
-          >
-            Retry export
-          </Button>
-        </div>
-      ) : null}
-
-      <div className={styles.editorGrid}>
-        {!narrow ? (
-          <Panel
-            bodyClassName={styles.railBody}
-            className={styles.libraryRail}
-            subtitle="Evidence and provider-neutral building blocks"
-            title="Design inputs"
-          >
-            {designInputs}
-          </Panel>
-        ) : null}
-
-        <section className={styles.canvasRegion} aria-labelledby="workspace-title">
-          <header className={styles.canvasHeader}>
-            <div>
-              <p className={styles.eyebrow}>
-                Revision {architecture.revision} · saved locally
-              </p>
-              <h1 id="workspace-title">{architecture.name}</h1>
-              {architecture.description ? (
-                <p>{architecture.description}</p>
-              ) : null}
-            </div>
-            <div className={styles.canvasMetrics} aria-label="Architecture totals">
-              <span>
-                {architecture.components.length}{" "}
-                {architecture.components.length === 1 ? "component" : "components"}
-              </span>
-              <span>
-                {architecture.connections.length}{" "}
-                {architecture.connections.length === 1
-                  ? "connection"
-                  : "connections"}
-              </span>
-            </div>
-          </header>
-          <ArchitectureCanvas
-            architecture={architecture}
-            dispatchCommand={dispatchCommand}
-            onSelectionChange={setSelectedComponentId}
-            selectedComponentId={selectedComponentId}
-          />
-        </section>
-
-        {!narrow ? (
-          <InspectorShell
-            bodyClassName={styles.inspectorBody}
-            className={styles.inspectorRail}
-            subtitle={
-              selectedComponentId
-                ? "Canonical component details"
-                : "Select a node or manage connections"
-            }
-            title="Inspector"
-          >
-            {inspector}
-          </InspectorShell>
-        ) : null}
-
-        <Panel
-          bodyClassName={styles.validationBody}
-          className={styles.validationRegion}
-          subtitle="Deterministic validation and observable AI operations"
-          title="Workspace signals"
-        >
-          <Tabs
-            onValueChange={(value) => setSignalTab(value as SignalTab)}
-            value={signalTab}
-          >
-            <TabsList aria-label="Workspace signal sections">
-              <TabsTrigger value="validation">Validation</TabsTrigger>
-              <TabsTrigger value="activity">AI activity</TabsTrigger>
-            </TabsList>
-            <TabsPanel value="validation">
-              <ValidationPanel
-                architectureComponentIds={componentIds}
-                error={validationError?.message ?? null}
-                issues={validationIssues}
-                loading={validationLoading}
-                onNavigate={navigateToComponent}
-                onRetry={refreshValidation}
-              />
-            </TabsPanel>
-            <TabsPanel value="activity">
-              <ActivityPanel
-                entityIds={navigableEntityIds}
-                onNavigate={navigateToEntity}
-                store={activityStore}
-              />
-            </TabsPanel>
-          </Tabs>
-        </Panel>
+      {/* Main 100% Canvas Region */}
+      <div className={styles.canvasWrapper}>
+        <ArchitectureCanvas
+          activeTool={activeTool}
+          architecture={architecture}
+          dispatchCommand={dispatchCommand}
+          nextId={nextId}
+          onOpenInspector={() => setInspectorOpen(true)}
+          onOpenShortcuts={() => setShortcutsOpen(true)}
+          onSelectionChange={setSelectedComponentId}
+          onToolChange={setActiveTool}
+          selectedComponentId={selectedComponentId}
+          technologies={technologies}
+        />
       </div>
 
+      {/* Floating Bottom Toolbar */}
+      <CanvasToolbar
+        activeTool={activeTool}
+        onOpenPrimitivePicker={() => setPrimitivePickerOpen(true)}
+        onSelectTool={setActiveTool}
+      />
+
+      {/* Primitive Picker Popover */}
+      <PrimitivePicker
+        capabilities={capabilities}
+        onClose={() => setPrimitivePickerOpen(false)}
+        onSelectCapability={handleSelectCapabilityFromPicker}
+        open={primitivePickerOpen}
+      />
+
+      {/* WebMCP Tools Modal */}
+      <WebMcpToolsModal
+        onClose={() => setWebMcpOpen(false)}
+        open={webMcpOpen}
+      />
+
+      {/* Keyboard Shortcuts Modal */}
+      <ShortcutsModal
+        onClose={() => setShortcutsOpen(false)}
+        open={shortcutsOpen}
+      />
+
+      {/* Floating Inspector Drawer */}
+      <FloatingInspector
+        onClose={() => setInspectorOpen(false)}
+        onSelectComponent={setSelectedComponentId}
+        open={inspectorOpen}
+        selectedComponentId={selectedComponentId}
+      />
+
+      {/* Export Popover */}
+      <ExportPopover
+        exporting={exporting}
+        onClose={() => setExportOpen(false)}
+        onExport={handleExport}
+        open={exportOpen}
+      />
+
+      {/* New Architecture Dialog */}
       <Dialog
         description="Create another local architecture. Your current design remains saved."
         onOpenChange={setNewArchitectureOpen}
         open={newArchitectureOpen}
-        title="New architecture"
+        title="New Architecture"
       >
         <CreateArchitectureForm
           onCancel={() => setNewArchitectureOpen(false)}
-          onCreate={async (name, description) => {
+          onCreate={async (name) => {
             setSelectedComponentId(null);
-            await createArchitecture(name, description);
+            await createArchitecture(name);
             setNewArchitectureOpen(false);
           }}
         />
       </Dialog>
 
+      {/* Clear Architecture Dialog */}
       <Dialog
-        description="This removes all requirements, constraints, components, connections, and decisions while preserving the architecture itself."
+        description="This removes all components, connections, and decisions while preserving the architecture record."
         onOpenChange={setClearOpen}
         open={clearOpen}
-        title="Clear architecture?"
+        title="Clear canvas?"
       >
         <div className={styles.dialogActions}>
           <Button onClick={() => setClearOpen(false)} variant="secondary">
@@ -546,34 +360,13 @@ export function ArchitectureWorkspace() {
           </Button>
           <Button
             busy={clearing}
-            onClick={() => void clearArchitecture()}
+            onClick={() => void clearCurrentArchitecture()}
             variant="danger"
           >
-            Clear architecture
+            Clear canvas
           </Button>
         </div>
       </Dialog>
-
-      {narrow ? (
-        <>
-          <Dialog
-            description="Edit requirements, constraints, and provider-neutral capabilities."
-            onOpenChange={setLibraryOpen}
-            open={libraryOpen}
-            title="Design inputs"
-          >
-            {designInputs}
-          </Dialog>
-          <Dialog
-            description="Edit the selected component or manage directed connections."
-            onOpenChange={setInspectorOpen}
-            open={inspectorOpen}
-            title="Inspector"
-          >
-            {inspector}
-          </Dialog>
-        </>
-      ) : null}
     </main>
   );
 }

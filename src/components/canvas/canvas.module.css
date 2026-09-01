@@ -1,248 +1,511 @@
-.canvasShell {
+.canvasContainer {
   position: relative;
-  display: grid;
-  min-height: 32rem;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  color: var(--text-primary, var(--foreground));
-  background: var(--surface-canvas, var(--background));
-  border: 1px solid
-    var(--border-default, color-mix(in srgb, currentColor 16%, transparent));
-  border-radius: var(--radius-panel, 0.75rem);
+  user-select: none;
+  background-color: var(--surface-canvas, #f8fafc);
 }
 
 .canvas {
-  position: relative;
-  min-height: 32rem;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   touch-action: none;
-  cursor: grab;
   background-image: radial-gradient(
-    color-mix(in srgb, currentColor 12%, transparent) 1px,
-    transparent 1px
+    var(--canvas-dot, #cbd5e1) 1.25px,
+    transparent 1.25px
   );
   background-size: 24px 24px;
 }
 
-.canvas:active {
-  cursor: grabbing;
-}
-
+.viewportTransform,
 .world {
   position: absolute;
   inset: 0 auto auto 0;
   transform-origin: 0 0;
 }
 
-.toolbar {
-  position: absolute;
-  z-index: 10;
-  top: 0.75rem;
-  left: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem;
-  background: var(--surface-raised, var(--background));
-  border: 1px solid
-    var(--border-default, color-mix(in srgb, currentColor 16%, transparent));
-  border-radius: var(--radius-control, 0.375rem);
-  box-shadow: 0 8px 24px color-mix(in srgb, currentColor 8%, transparent);
-}
-
-.toolbar button,
-.toolbar output {
-  min-width: 2rem;
-  min-height: 2rem;
-  padding: 0.375rem 0.625rem;
-  color: inherit;
-  background: transparent;
-  border: 0;
-  border-radius: 0.25rem;
-  font: inherit;
-  font-size: 0.75rem;
-}
-
-.toolbar button {
-  cursor: pointer;
-}
-
-.toolbar button:hover {
-  background: color-mix(in srgb, currentColor 8%, transparent);
-}
-
-.toolbar button:focus-visible,
-.node:focus-visible {
-  outline: 2px solid var(--focus-ring, Highlight);
-  outline-offset: 2px;
-}
-
-.error {
-  position: absolute;
-  z-index: 10;
-  top: 3.75rem;
-  left: 0.75rem;
-  max-width: 24rem;
-  padding: 0.625rem 0.75rem;
-  color: var(--status-error, currentColor);
-  background: var(--surface-raised, var(--background));
-  border: 1px solid currentColor;
-  border-radius: 0.375rem;
-  font-size: 0.8125rem;
-}
-
-.emptyState {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  gap: 0.375rem;
-  padding: 2rem;
-  text-align: center;
-  pointer-events: none;
-}
-
-.emptyState strong {
-  font-size: 0.9375rem;
-}
-
-.emptyState span {
-  color: var(--text-muted, color-mix(in srgb, currentColor 62%, transparent));
-  font-size: 0.8125rem;
-}
-
-.connections {
+/* --- SVG Connections Layer --- */
+.connectionSvgLayer,
+.connectionsSvg {
   position: absolute;
   inset: 0;
   overflow: visible;
   pointer-events: none;
 }
 
+.connectionGroup {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.connectionHitArea {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 20px;
+  stroke-linecap: round;
+}
+
 .connectionPath {
   fill: none;
-  stroke: var(
-    --border-strong,
-    color-mix(in srgb, currentColor 36%, transparent)
-  );
-  stroke-width: 1.5;
+  stroke: #94a3b8;
+  stroke-width: 2px;
+  stroke-linecap: round;
+  transition: stroke 140ms ease, stroke-width 140ms ease;
 }
 
-.connections marker path {
-  fill: var(--border-strong, currentColor);
+.connectionGroup:hover .connectionPath {
+  stroke: #334155;
+  stroke-width: 2.5px;
 }
 
-.connectionLabel {
-  fill: var(--text-muted, currentColor);
-  font-family: var(--font-mono);
-  font-size: 10px;
+.connectionSelected .connectionPath {
+  stroke: #2563eb;
+  stroke-width: 2.5px;
 }
 
+.connectingLivePath {
+  fill: none;
+  stroke: #2563eb;
+  stroke-width: 2px;
+  stroke-dasharray: 6 4;
+  animation: dash 1s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+.connectionLabelContainer {
+  overflow: visible;
+  pointer-events: auto;
+}
+
+.connectionLabelPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  height: 24px;
+  padding: 0 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: #334155;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: all 120ms ease;
+}
+
+.connectionLabelPill:hover {
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.connectionLabelPillSelected {
+  border-color: #2563eb;
+  color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.connectionLabelText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.connectionLabelInput {
+  width: 90px;
+  height: 18px;
+  padding: 0 4px;
+  background: #f8fafc;
+  border: 1px solid #2563eb;
+  border-radius: 4px;
+  outline: none;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: #0f172a;
+  text-align: center;
+}
+
+/* --- Canvas Component Node --- */
 .node {
   position: absolute;
-  z-index: 1;
-  display: grid;
-  width: 14rem;
-  min-height: 7rem;
-  gap: 0.375rem;
-  padding: 0.75rem;
-  color: inherit;
-  text-align: left;
-  touch-action: none;
-  cursor: move;
-  background: var(--surface-raised, var(--background));
-  border: 1px solid
-    var(--border-default, color-mix(in srgb, currentColor 18%, transparent));
-  border-radius: var(--radius-node, 0.5rem);
-  box-shadow: 0 4px 16px color-mix(in srgb, currentColor 6%, transparent);
+  z-index: 2;
+  width: 224px;
+  min-height: 105px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.04);
+  color: #0f172a;
+  cursor: grab;
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
 .node:hover {
-  border-color: var(
-    --border-strong,
-    color-mix(in srgb, currentColor 40%, transparent)
-  );
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.09);
 }
 
-.node[data-selected] {
-  background: var(
-    --selection,
-    color-mix(in srgb, Highlight 12%, var(--background))
-  );
-  border-color: var(--interactive, Highlight);
-  box-shadow: 0 0 0 2px
-    color-mix(in srgb, var(--interactive, Highlight) 25%, transparent);
+.node:active {
+  cursor: grabbing;
 }
 
-.node[data-existing] {
+.node[data-selected="true"] {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15), 0 8px 24px rgba(37, 99, 235, 0.1);
+  z-index: 5;
+}
+
+.node[data-existing="true"] {
   border-style: dashed;
+  background: #fafaf9;
 }
 
+/* --- 4 Perimeter Connection Ports --- */
+.nodePort {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: crosshair;
+  opacity: 0;
+  transition: opacity 120ms ease, transform 120ms ease;
+  z-index: 10;
+}
+
+.node:hover .nodePort {
+  opacity: 1;
+}
+
+.nodePort:hover {
+  transform: scale(1.3);
+}
+
+.portDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.portTop {
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.portTop:hover {
+  transform: translateX(-50%) scale(1.3);
+}
+
+.portRight {
+  top: 50%;
+  right: -10px;
+  transform: translateY(-50%);
+}
+
+.portRight:hover {
+  transform: translateY(-50%) scale(1.3);
+}
+
+.portBottom {
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.portBottom:hover {
+  transform: translateX(-50%) scale(1.3);
+}
+
+.portLeft {
+  top: 50%;
+  left: -10px;
+  transform: translateY(-50%);
+}
+
+.portLeft:hover {
+  transform: translateY(-50%) scale(1.3);
+}
+
+/* --- Node Content Elements --- */
 .nodeHeader {
   display: flex;
   align-items: center;
-  min-width: 0;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .semanticMarker {
-  width: 0.5rem;
-  height: 0.5rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
   flex: none;
-  background: var(--semantic-capability, currentColor);
-  border-radius: 0.125rem;
+}
+
+.nameContainer {
+  flex: 1;
+  min-width: 0;
 }
 
 .nodeName {
-  min-width: 0;
-  overflow: hidden;
-  font-size: 0.875rem;
+  font-size: 13px;
   font-weight: 650;
+  letter-spacing: -0.01em;
+  color: #0f172a;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: block;
+}
+
+.inlineNameInput {
+  width: 100%;
+  height: 22px;
+  padding: 0 4px;
+  background: #f8fafc;
+  border: 1.5px solid #2563eb;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 650;
+  color: #0f172a;
+  outline: none;
 }
 
 .existingBadge {
-  margin-left: auto;
-  padding: 0.125rem 0.375rem;
-  color: var(--semantic-existing, currentColor);
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  font-size: 0.625rem;
-  font-weight: 650;
+  font-size: 9px;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  padding: 1px 4px;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 3px;
+  border: 1px solid #e2e8f0;
 }
 
-.capability,
-.resolutionTrail,
-.unresolved {
-  overflow: hidden;
-  color: var(--text-muted, color-mix(in srgb, currentColor 65%, transparent));
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.capabilityRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.capabilityBadge {
+  font-family: var(--font-mono, monospace);
+  font-size: 10.5px;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
 }
 
 .description {
-  display: -webkit-box;
-  overflow: hidden;
-  color: var(--text-secondary, currentColor);
-  font-size: 0.75rem;
+  margin: 0;
+  font-size: 11px;
+  color: #64748b;
   line-height: 1.35;
-  -webkit-box-orient: vertical;
+  display: -webkit-box;
   -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.nodeFooter {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.resolvedTech {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #7c3aed;
 }
 
 .unresolved {
-  font-style: italic;
+  font-size: 10px;
+  color: #94a3b8;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .node,
-  .toolbar button {
-    transition:
-      border-color 140ms ease,
-      background-color 140ms ease,
-      box-shadow 140ms ease;
-  }
+/* --- Floating Selection Toolbar --- */
+.selectionToolbar {
+  position: absolute;
+  z-index: 20;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 4px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.12), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  white-space: nowrap;
+}
+
+.quickTechnologyField {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 5px 0 7px;
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  border-radius: 5px;
+  color: var(--text-secondary, #334155);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.quickTechnologySelect {
+  min-width: 104px;
+  max-width: 132px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text-primary, #0f172a);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.miniToolBtn,
+.selectionToolbarBtn {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 7px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 120ms ease;
+}
+
+.miniToolBtn:hover,
+.selectionToolbarBtn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.miniToolBtnActive,
+.selectionToolbarBtnActive {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.miniToolBtnDanger,
+.selectionToolbarBtnDanger {
+  color: #e11d48;
+}
+
+.miniToolBtnDanger:hover,
+.selectionToolbarBtnDanger:hover {
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.selectionDivider {
+  width: 1px;
+  height: 14px;
+  background: #e2e8f0;
+  margin: 0 2px;
+}
+
+/* --- Empty Canvas Card --- */
+.emptyStateContainer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.emptyCard {
+  width: 320px;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.emptyIcon {
+  font-size: 20px;
+  color: #2563eb;
+  margin-bottom: 8px;
+}
+
+.emptyCard h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 650;
+  color: #0f172a;
+}
+
+.emptyCard p {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.canvasToast {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1px solid #e11d48;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  color: #e11d48;
+  font-size: 12px;
+}
+
+.canvasToast button {
+  background: transparent;
+  border: none;
+  color: currentColor;
+  cursor: pointer;
+  font-size: 14px;
 }

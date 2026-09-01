@@ -4,7 +4,6 @@ import { EntityIdSchema } from "@/application/contracts";
 
 export const ArchitectureDraftSchema = z.strictObject({
   name: z.string().trim().min(1, "Enter an architecture name.").max(100),
-  description: z.string().trim().max(500),
 });
 
 export const ComponentDraftSchema = z.strictObject({

@@ -1,0 +1,452 @@
+import type { DesignSystemWorkflowRequest } from "@/application/services";
+
+export interface ArchitectureTemplate {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly category: string;
+  readonly request: DesignSystemWorkflowRequest;
+}
+
+export const ARCHITECTURE_TEMPLATES: readonly ArchitectureTemplate[] = [
+  {
+    id: "ecommerce-checkout",
+    name: "E-Commerce Checkout & Inventory",
+    description: "Resilient transactional checkout platform with database, cache, and async fulfilment queue.",
+    category: "Transactional",
+    request: {
+      metadata: {
+        name: "E-Commerce Checkout Platform",
+        description: "Resilient transactional checkout platform with relational data, low-latency cache, and message queue.",
+      },
+      requirements: [
+        {
+          key: "req-availability",
+          statement: "Checkout flow must maintain high availability during peak events.",
+          category: "reliability",
+          priority: "critical",
+          target: "99.99% uptime",
+        },
+        {
+          key: "req-latency",
+          statement: "P95 order placement latency under 200ms.",
+          category: "performance",
+          priority: "high",
+          target: "< 200ms",
+        },
+      ],
+      constraints: [
+        {
+          key: "con-ts",
+          kind: "skill",
+          statement: "Engineering team is specialized in TypeScript and Node.js.",
+          severity: "preference",
+          value: ["typescript", "nodejs"],
+          source: "Team Profile",
+        },
+      ],
+      components: [
+        {
+          key: "client",
+          capabilityId: "capability-web-interface",
+          name: "Web Storefront",
+          description: "React single page web application with SSR.",
+          position: { x: 80, y: 160 },
+        },
+        {
+          key: "api-gw",
+          capabilityId: "capability-api",
+          name: "API Gateway",
+          description: "Ingress routing, rate limiting, and auth validation.",
+          position: { x: 380, y: 160 },
+        },
+        {
+          key: "cache",
+          capabilityId: "capability-cache",
+          name: "Product Cache",
+          description: "Fast in-memory cache for product catalog and session data.",
+          position: { x: 380, y: 360 },
+        },
+        {
+          key: "orders-db",
+          capabilityId: "capability-database",
+          name: "Orders DB (Postgres)",
+          description: "Transactional relational store for orders and payments.",
+          position: { x: 680, y: 80 },
+        },
+        {
+          key: "fulfilment-queue",
+          capabilityId: "capability-queue",
+          name: "Fulfilment Queue",
+          description: "Async message queue for inventory reservation and shipping.",
+          position: { x: 680, y: 260 },
+        },
+        {
+          key: "worker",
+          capabilityId: "capability-compute",
+          name: "Fulfilment Worker",
+          description: "Background worker consuming messages and notifying warehouses.",
+          position: { x: 980, y: 260 },
+        },
+      ],
+      connections: [
+        {
+          key: "conn-1",
+          sourceComponentKey: "client",
+          targetComponentKey: "api-gw",
+          relationship: "request",
+          label: "HTTPS / REST",
+        },
+        {
+          key: "conn-2",
+          sourceComponentKey: "api-gw",
+          targetComponentKey: "cache",
+          relationship: "data",
+          label: "reads / writes cache",
+        },
+        {
+          key: "conn-3",
+          sourceComponentKey: "api-gw",
+          targetComponentKey: "orders-db",
+          relationship: "data",
+          label: "ACID transactions",
+        },
+        {
+          key: "conn-4",
+          sourceComponentKey: "api-gw",
+          targetComponentKey: "fulfilment-queue",
+          relationship: "event",
+          label: "publishes order.created",
+        },
+        {
+          key: "conn-5",
+          sourceComponentKey: "fulfilment-queue",
+          targetComponentKey: "worker",
+          relationship: "event",
+          label: "dispatches jobs",
+        },
+      ],
+      resolutions: [
+        { componentKey: "client", technologyId: "technology-react" },
+        { componentKey: "api-gw", technologyId: "technology-nodejs" },
+        { componentKey: "cache", technologyId: "technology-redis" },
+        { componentKey: "orders-db", technologyId: "technology-postgresql" },
+        { componentKey: "fulfilment-queue", technologyId: "technology-rabbitmq" },
+      ],
+    },
+  },
+  {
+    id: "microservices-platform",
+    name: "Scalable Microservices Architecture",
+    description: "Multi-service backend with service mesh proxy, isolated document/relational databases, and centralized auth.",
+    category: "Microservices",
+    request: {
+      metadata: {
+        name: "Microservices Architecture",
+        description: "Decoupled microservices architecture with Envoy mesh, identity provider, and distinct data tiers.",
+      },
+      requirements: [
+        {
+          key: "req-isolation",
+          statement: "Services must own their data stores with zero direct cross-database access.",
+          category: "security",
+          priority: "critical",
+        },
+      ],
+      constraints: [],
+      components: [
+        {
+          key: "proxy",
+          capabilityId: "capability-service-network",
+          name: "Envoy Reverse Proxy",
+          description: "Edge proxy with mTLS and route discovery.",
+          position: { x: 80, y: 200 },
+        },
+        {
+          key: "auth",
+          capabilityId: "capability-identity",
+          name: "Identity & Auth",
+          description: "OIDC authentication and token issuer.",
+          position: { x: 80, y: 40 },
+        },
+        {
+          key: "user-svc",
+          capabilityId: "capability-compute",
+          name: "User Service",
+          description: "User profiles, roles, and authorization.",
+          position: { x: 380, y: 100 },
+        },
+        {
+          key: "catalog-svc",
+          capabilityId: "capability-compute",
+          name: "Catalog Service",
+          description: "Product categories, search indexing, and metadata.",
+          position: { x: 380, y: 300 },
+        },
+        {
+          key: "user-db",
+          capabilityId: "capability-database",
+          name: "User Store",
+          description: "PostgreSQL store for user records.",
+          position: { x: 680, y: 100 },
+        },
+        {
+          key: "catalog-db",
+          capabilityId: "capability-database",
+          name: "Catalog Store",
+          description: "MongoDB document store for dynamic item attributes.",
+          position: { x: 680, y: 300 },
+        },
+      ],
+      connections: [
+        {
+          key: "c1",
+          sourceComponentKey: "proxy",
+          targetComponentKey: "auth",
+          relationship: "control",
+          label: "verifies JWT",
+        },
+        {
+          key: "c2",
+          sourceComponentKey: "proxy",
+          targetComponentKey: "user-svc",
+          relationship: "request",
+          label: "/users/*",
+        },
+        {
+          key: "c3",
+          sourceComponentKey: "proxy",
+          targetComponentKey: "catalog-svc",
+          relationship: "request",
+          label: "/catalog/*",
+        },
+        {
+          key: "c4",
+          sourceComponentKey: "user-svc",
+          targetComponentKey: "user-db",
+          relationship: "data",
+          label: "SQL queries",
+        },
+        {
+          key: "c5",
+          sourceComponentKey: "catalog-svc",
+          targetComponentKey: "catalog-db",
+          relationship: "data",
+          label: "BSON documents",
+        },
+      ],
+      resolutions: [
+        { componentKey: "proxy", technologyId: "technology-envoy" },
+        { componentKey: "auth", technologyId: "technology-keycloak" },
+        { componentKey: "user-svc", technologyId: "technology-go" },
+        { componentKey: "catalog-svc", technologyId: "technology-nodejs" },
+        { componentKey: "user-db", technologyId: "technology-postgresql" },
+        { componentKey: "catalog-db", technologyId: "technology-mongodb" },
+      ],
+    },
+  },
+  {
+    id: "event-streaming",
+    name: "Real-Time Event Streaming & Analytics",
+    description: "High-throughput event streaming with Kafka, event processing workers, and object storage data lake.",
+    category: "Streaming",
+    request: {
+      metadata: {
+        name: "Real-Time Event Streaming",
+        description: "Event backbone for high-throughput clickstream data, replayable stream processing, and telemetry archival.",
+      },
+      requirements: [
+        {
+          key: "req-throughput",
+          statement: "System must ingest and process 50,000 events/sec with ordered partitions.",
+          category: "performance",
+          priority: "critical",
+          target: "50k ops/sec",
+        },
+      ],
+      constraints: [],
+      components: [
+        {
+          key: "ingest-api",
+          capabilityId: "capability-api",
+          name: "Ingestion API",
+          description: "High-throughput edge ingestion endpoint.",
+          position: { x: 80, y: 180 },
+        },
+        {
+          key: "kafka",
+          capabilityId: "capability-event-stream",
+          name: "Kafka Cluster",
+          description: "Distributed durable event log partitioned by key.",
+          position: { x: 380, y: 180 },
+        },
+        {
+          key: "stream-worker",
+          capabilityId: "capability-compute",
+          name: "Stream Analytics Worker",
+          description: "Consumes events and calculates rolling aggregations.",
+          position: { x: 680, y: 100 },
+        },
+        {
+          key: "archive-worker",
+          capabilityId: "capability-compute",
+          name: "Data Lake Ingest Worker",
+          description: "Batches events for long-term analytical storage.",
+          position: { x: 680, y: 280 },
+        },
+        {
+          key: "lake",
+          capabilityId: "capability-object-storage",
+          name: "Object Storage (S3)",
+          description: "Parquet formatted partitioned data lake.",
+          position: { x: 980, y: 280 },
+        },
+      ],
+      connections: [
+        {
+          key: "c1",
+          sourceComponentKey: "ingest-api",
+          targetComponentKey: "kafka",
+          relationship: "event",
+          label: "publishes stream",
+        },
+        {
+          key: "c2",
+          sourceComponentKey: "kafka",
+          targetComponentKey: "stream-worker",
+          relationship: "event",
+          label: "real-time consumer group",
+        },
+        {
+          key: "c3",
+          sourceComponentKey: "kafka",
+          targetComponentKey: "archive-worker",
+          relationship: "event",
+          label: "batched consumer group",
+        },
+        {
+          key: "c4",
+          sourceComponentKey: "archive-worker",
+          targetComponentKey: "lake",
+          relationship: "data",
+          label: "writes parquet files",
+        },
+      ],
+      resolutions: [
+        { componentKey: "ingest-api", technologyId: "technology-go" },
+        { componentKey: "kafka", technologyId: "technology-kafka" },
+        { componentKey: "lake", technologyId: "technology-s3-api" },
+      ],
+    },
+  },
+  {
+    id: "ai-rag-pipeline",
+    name: "AI Application & RAG Search Pipeline",
+    description: "LLM application architecture with vector database, document parser, caching layer, and telemetry.",
+    category: "AI & ML",
+    request: {
+      metadata: {
+        name: "AI RAG Search Pipeline",
+        description: "Retrieval-Augmented Generation system with vector database embeddings, caching, and observability.",
+      },
+      requirements: [
+        {
+          key: "req-privacy",
+          statement: "Enterprise documents and customer prompts must be encrypted and audited.",
+          category: "security",
+          priority: "critical",
+        },
+      ],
+      constraints: [],
+      components: [
+        {
+          key: "chat-ui",
+          capabilityId: "capability-web-interface",
+          name: "AI Chat Interface",
+          description: "Interactive chat and document upload client.",
+          position: { x: 80, y: 160 },
+        },
+        {
+          key: "rag-api",
+          capabilityId: "capability-api",
+          name: "RAG Orchestrator API",
+          description: "Coordinates query embedding, vector lookup, and prompt synthesis.",
+          position: { x: 380, y: 160 },
+        },
+        {
+          key: "semantic-cache",
+          capabilityId: "capability-cache",
+          name: "Semantic Query Cache",
+          description: "Caches common prompt completions and embeddings.",
+          position: { x: 380, y: 360 },
+        },
+        {
+          key: "vector-db",
+          capabilityId: "capability-database",
+          name: "Vector Store (pgvector)",
+          description: "Relational + HNSW indexed vector embeddings database.",
+          position: { x: 680, y: 80 },
+        },
+        {
+          key: "doc-storage",
+          capabilityId: "capability-object-storage",
+          name: "Source Documents",
+          description: "Unstructured PDFs, markdown files, and raw text corpus.",
+          position: { x: 680, y: 260 },
+        },
+        {
+          key: "telemetry",
+          capabilityId: "capability-observability",
+          name: "LLM Observability",
+          description: "Token counts, latency tracing, and response evaluation logs.",
+          position: { x: 980, y: 160 },
+        },
+      ],
+      connections: [
+        {
+          key: "c1",
+          sourceComponentKey: "chat-ui",
+          targetComponentKey: "rag-api",
+          relationship: "request",
+          label: "WebSocket / SSE stream",
+        },
+        {
+          key: "c2",
+          sourceComponentKey: "rag-api",
+          targetComponentKey: "semantic-cache",
+          relationship: "data",
+          label: "embedding lookup",
+        },
+        {
+          key: "c3",
+          sourceComponentKey: "rag-api",
+          targetComponentKey: "vector-db",
+          relationship: "data",
+          label: "similarity search",
+        },
+        {
+          key: "c4",
+          sourceComponentKey: "rag-api",
+          targetComponentKey: "doc-storage",
+          relationship: "data",
+          label: "fetches chunk context",
+        },
+        {
+          key: "c5",
+          sourceComponentKey: "rag-api",
+          targetComponentKey: "telemetry",
+          relationship: "data",
+          label: "traces prompts & tokens",
+        },
+      ],
+      resolutions: [
+        { componentKey: "chat-ui", technologyId: "technology-react" },
+        { componentKey: "rag-api", technologyId: "technology-nodejs" },
+        { componentKey: "semantic-cache", technologyId: "technology-redis" },
+        { componentKey: "vector-db", technologyId: "technology-postgresql" },
+        { componentKey: "doc-storage", technologyId: "technology-s3-api" },
+        { componentKey: "telemetry", technologyId: "technology-opentelemetry" },
+      ],
+    },
+  },
+];
