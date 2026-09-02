@@ -237,11 +237,11 @@ export function ConnectionEditor({
           </div>
 
           <div className={styles.inspectorActionsRow}>
-            <Button busy={saving} type="submit">
+            <Button busy={saving} size="compact" type="submit">
               {editingId ? "Update Connection" : "Connect Components"}
             </Button>
             {editingId ? (
-              <Button onClick={reset} variant="secondary">
+              <Button onClick={reset} size="compact" variant="secondary">
                 Cancel
               </Button>
             ) : null}

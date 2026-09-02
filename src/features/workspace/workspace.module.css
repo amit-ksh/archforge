@@ -408,15 +408,92 @@
   right: 14px;
   bottom: 20px;
   z-index: 30;
-  width: 336px;
+  width: 368px;
   max-width: calc(100vw - 28px);
   display: flex;
   flex-direction: column;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  box-shadow: 0 20px 48px -8px rgba(15, 23, 42, 0.14), 0 2px 8px -1px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.04);
   overflow: hidden;
+}
+
+/* Compact UI Control Scaling inside FloatingInspector */
+.floatingInspector [class*="field_"],
+.floatingInspector [class*="fieldShell"] {
+  gap: 3px !important;
+}
+
+.floatingInspector [class*="fieldLabel"],
+.floatingInspector label {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #475569 !important;
+  letter-spacing: 0.01em;
+}
+
+.floatingInspector input:not([type="checkbox"]):not([type="radio"]),
+.floatingInspector select,
+.floatingInspector [class*="fieldControl"] {
+  min-height: 28px !important;
+  height: 28px !important;
+  padding: 2px 8px !important;
+  font-size: 12px !important;
+  border-radius: 5px !important;
+  border-color: #cbd5e1;
+}
+
+.floatingInspector textarea,
+.floatingInspector [class*="textArea"] {
+  min-height: 48px !important;
+  height: auto !important;
+  padding: 4px 8px !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  border-radius: 5px !important;
+}
+
+.floatingInspector input:focus,
+.floatingInspector select:focus,
+.floatingInspector textarea:focus,
+.floatingInspector [class*="fieldControl"]:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12) !important;
+}
+
+.floatingInspector button,
+.floatingInspector [class*="button"] {
+  min-height: 26px !important;
+  height: 26px !important;
+  padding: 0 10px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  border-radius: 5px !important;
+  gap: 4px;
+  width: auto;
+}
+
+.floatingInspector .miniCloseBtn {
+  min-height: 24px !important;
+  height: 24px !important;
+  width: 24px !important;
+  padding: 0 !important;
+  font-size: 16px !important;
+}
+
+.floatingInspector .inspectorPillBtn {
+  min-height: 24px !important;
+  height: 24px !important;
+  padding: 2px 5px !important;
+  font-size: 10.5px !important;
+}
+
+.floatingInspector .cardIconBtn {
+  min-height: 22px !important;
+  height: 22px !important;
+  width: 22px !important;
+  padding: 0 !important;
 }
 
 .inspectorTopBar {
@@ -478,16 +555,21 @@
 /* Pill Navigation */
 .inspectorPillNav {
   display: flex;
-  gap: 3px;
-  padding: 4px 8px;
+  gap: 2px;
+  padding: 4px 6px;
   background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
   overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.inspectorPillNav::-webkit-scrollbar {
+  display: none;
 }
 
 .inspectorPillBtn {
   flex: 1;
-  padding: 4px 6px;
+  padding: 4px 4px;
   background: transparent;
   border: none;
   border-radius: 6px;
@@ -497,6 +579,7 @@
   cursor: pointer;
   white-space: nowrap;
   transition: all 120ms ease;
+  text-align: center;
 }
 
 .inspectorPillBtn:hover {
@@ -611,12 +694,12 @@
 
 .modernSelect {
   width: 100%;
-  height: 30px;
-  padding: 0 10px;
+  height: 28px;
+  padding: 0 8px;
   background: #ffffff;
   border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 12.5px;
+  border-radius: 5px;
+  font-size: 11.5px;
   color: #0f172a;
   outline: none;
   cursor: pointer;
@@ -629,27 +712,27 @@
 
 .modernSelect:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
 }
 
 .inspectorFieldControl {
-  min-height: 2rem;
-  padding: 5px 8px;
-  font-size: 12px;
+  min-height: 1.875rem;
+  padding: 3px 8px;
+  font-size: 11.5px;
 }
 
 .inspectorDescription {
-  min-height: 4.5rem;
+  min-height: 3.5rem;
 }
 
 .checkboxCard {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: 8px;
+  padding: 6px 8px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
@@ -661,35 +744,35 @@
 .checkboxCard div {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .checkboxCard strong {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #0f172a;
 }
 
 .checkboxCard span {
-  font-size: 11px;
+  font-size: 10.5px;
   color: #64748b;
 }
 
 .metaCard {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px 10px;
+  gap: 4px;
+  padding: 6px 8px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .metaRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 11.5px;
+  font-size: 11px;
 }
 
 .metaRow span {
@@ -699,10 +782,10 @@
 
 .metaRow code {
   font-family: var(--font-mono, monospace);
-  font-size: 10.5px;
+  font-size: 10px;
   color: #334155;
   background: #ffffff;
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: 4px;
   border: 1px solid #e2e8f0;
 }
@@ -710,7 +793,7 @@
 .inspectorActionsRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 8px;
   padding-top: 8px;
 }
@@ -718,11 +801,11 @@
 .panelSectionCard {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 12px;
+  gap: 8px;
+  padding: 10px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .sectionHeaderRow {
@@ -1363,112 +1446,315 @@
   height: 100vh;
   overflow-y: auto;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 24px;
-  background: var(--surface-canvas, #f8fafc);
+  padding: 48px 24px;
+  background: 
+    radial-gradient(ellipse at 50% 0%, rgba(37, 99, 235, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 1px 1px, rgba(148, 163, 184, 0.2) 1px, transparent 0);
+  background-size: 100% 100%, 24px 24px;
+  background-color: #f8fafc;
 }
 
 .welcomeHero {
-  max-width: 680px;
+  max-width: 820px;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+  margin: auto 0;
+}
+
+.welcomeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.05);
+}
+
+.welcomeBadgeSparkle {
+  color: #3b82f6;
+  font-size: 11px;
 }
 
 .welcomeBrand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 12px;
+  margin-bottom: 6px;
 }
 
 .brandIconLarge {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: #2563eb;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: #ffffff;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 800;
-  border-radius: 8px;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
 }
 
 .welcomeBrand h1 {
   margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.welcomeTemplatesHeading {
-  align-self: center;
-  margin: 16px 0 8px;
-  color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 650;
-  text-align: center;
-}
-
-.welcomeTemplatesGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 12px;
-  width: 100%;
-  margin-bottom: 24px;
-}
-
-.welcomeTemplateCard {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 76px;
-  padding: 16px 20px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  text-align: center;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-  transition: all 120ms ease;
-}
-
-.welcomeTemplateCard:hover {
-  border-color: #2563eb;
-  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
-  transform: translateY(-2px);
-}
-
-.welcomeTemplateCard strong {
-  font-size: 14px;
-  font-weight: 650;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   color: #0f172a;
 }
 
-.welcomeCustomSection {
+.welcomeSubtitle {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #64748b;
+  max-width: 620px;
+  margin: 6px 0 28px;
+  text-align: center;
+}
+
+/* Blank Canvas Creation Card */
+.welcomeCreateCard {
+  width: 100%;
+  max-width: 580px;
+  padding: 20px 24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(15, 23, 42, 0.02);
+  margin-bottom: 36px;
+  text-align: left;
+}
+
+.welcomeCreateHeader {
+  margin-bottom: 14px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 420px;
+  gap: 2px;
+}
+
+.welcomeCreateHeader h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.welcomeCreateHeader p {
+  margin: 0;
+  font-size: 12.5px;
+  color: #64748b;
 }
 
 .welcomeCreateForm {
   width: 100%;
 }
 
+.welcomeCreateForm .formActions {
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* Templates Catalog */
+.welcomeTemplatesSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.welcomeTemplatesHeader {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.welcomeTemplatesHeader h2 {
+  font-size: 17px;
+  font-weight: 750;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.welcomeTemplatesHeader p {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 0;
+  max-width: 520px;
+}
+
+.welcomeTemplatesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 14px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.welcomeTemplateCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 18px 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+
+.welcomeTemplateCard:hover {
+  border-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -6px rgba(37, 99, 235, 0.12), 0 0 0 1px #2563eb;
+}
+
+.welcomeTemplateCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.templateCategoryBadge {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.templateCategoryBadge[data-category="transactional"] {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #dbeafe;
+}
+
+.templateCategoryBadge[data-category="microservices"] {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #dcfce7;
+}
+
+.templateCategoryBadge[data-category="streaming"] {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fef3c7;
+}
+
+.templateCategoryBadge[data-category="ai-ml"] {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #f3e8ff;
+}
+
+.templateArrowAffordance {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 150ms ease;
+}
+
+.welcomeTemplateCard:hover .templateArrowAffordance {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.welcomeTemplateTitle {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.welcomeTemplateDesc {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0 0 14px;
+  flex: 1;
+}
+
+.welcomeTemplateMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.welcomeTemplateMetaBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+/* Feature Badges Footer */
+.welcomeFeaturesRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+  width: 100%;
+}
+
+.welcomeFeaturePill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid #e2e8f0;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+.welcomeFeatureIcon {
+  font-size: 13px;
+}
+
 .formActions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-}
-
-.welcomeCreateForm .formActions {
-  justify-content: center;
 }
 
 .loadingViewport,

@@ -20,7 +20,12 @@ interface FloatingInspectorProps {
   readonly onSelectComponent: (id: EntityId | null) => void;
 }
 
-type InspectorTab = "component" | "resolution" | "connections" | "evidence" | "signals";
+type InspectorTab =
+  | "component"
+  | "resolution"
+  | "connections"
+  | "evidence"
+  | "signals";
 
 export function FloatingInspector({
   open,
@@ -42,12 +47,16 @@ export function FloatingInspector({
   } = useArchitectureWorkspace();
 
   const [activeTab, setActiveTab] = useState<InspectorTab>("component");
-  const [evidenceSection, setEvidenceSection] = useState<"requirements" | "constraints">("requirements");
+  const [evidenceSection, setEvidenceSection] = useState<
+    "requirements" | "constraints"
+  >("requirements");
 
   if (!open || !architecture) return null;
 
   const componentIds = new Set(architecture.components.map((c) => c.id));
-  const selectedComponent = architecture.components.find((c) => c.id === selectedComponentId);
+  const selectedComponent = architecture.components.find(
+    (c) => c.id === selectedComponentId,
+  );
   const navigableEntityIds = new Set([
     architecture.id,
     ...architecture.requirements.map((r) => r.id),
@@ -57,23 +66,30 @@ export function FloatingInspector({
   ]);
 
   return (
-    <aside aria-label="Architecture Inspector" className={styles.floatingInspector}>
+    <aside
+      aria-label="Architecture Inspector"
+      className={styles.floatingInspector}
+    >
       {/* Modern Top Header */}
       <div className={styles.inspectorTopBar}>
         <div className={styles.inspectorHeading}>
           <div className={styles.inspectorTitleRow}>
             <h3>Inspector</h3>
             {selectedComponent ? (
-              <span className={styles.inspectorSelectedName}>{selectedComponent.name}</span>
+              <span className={styles.inspectorSelectedName}>
+                {selectedComponent.name}
+              </span>
             ) : (
-              <span className={styles.inspectorSelectedName}>Architecture Overview</span>
+              <span className={styles.inspectorSelectedName}>
+                Architecture Overview
+              </span>
             )}
           </div>
-          {validationIssues.length > 0 ? (
+          {/* {validationIssues.length > 0 ? (
             <Badge tone="warning">{validationIssues.length} issues</Badge>
           ) : (
             <Badge tone="success">Valid</Badge>
-          )}
+          )} */}
         </div>
         <button
           aria-label="Close inspector"
@@ -86,7 +102,10 @@ export function FloatingInspector({
       </div>
 
       {/* Pill Segmented Tabs */}
-      <nav aria-label="Inspector navigation" className={styles.inspectorPillNav}>
+      <nav
+        aria-label="Inspector navigation"
+        className={styles.inspectorPillNav}
+      >
         {(
           [
             { id: "component", label: "Component" },

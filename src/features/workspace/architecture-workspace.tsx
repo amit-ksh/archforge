@@ -16,7 +16,10 @@ import { FloatingInspector } from "./floating-inspector";
 import { MinimalHeader } from "./minimal-header";
 import { PrimitivePicker } from "./primitive-picker";
 import { ShortcutsModal } from "./shortcuts-modal";
-import { ARCHITECTURE_TEMPLATES, type ArchitectureTemplate } from "./templates-catalog";
+import {
+  ARCHITECTURE_TEMPLATES,
+  type ArchitectureTemplate,
+} from "./templates-catalog";
 import { WebMcpToolsModal } from "./webmcp-tools-modal";
 import styles from "./workspace.module.css";
 
@@ -204,7 +207,9 @@ export function ArchitectureWorkspace() {
           Remove unreadable data
         </Button>
       ) : error.retryable ? (
-        <Button onClick={() => void reloadArchitectures()}>Retry loading</Button>
+        <Button onClick={() => void reloadArchitectures()}>
+          Retry loading
+        </Button>
       ) : undefined;
 
     return (
@@ -219,35 +224,95 @@ export function ArchitectureWorkspace() {
     );
   }
 
+  // Welcome screen
   if (!architecture) {
     return (
       <main className={styles.welcomeViewport} id="main-content">
         <div className={styles.welcomeHero}>
+          <div className={styles.welcomeBadge}>
+            <span className={styles.welcomeBadgeSparkle} aria-hidden="true">✦</span>
+            <span>Local-First WebMCP Architecture Studio</span>
+          </div>
+
           <div className={styles.welcomeBrand}>
-            <span className={styles.brandIconLarge} aria-hidden="true">AF</span>
+            <span className={styles.brandIconLarge} aria-hidden="true">
+              AF
+            </span>
             <h1>ArchForge</h1>
           </div>
-          <div className={styles.welcomeCustomSection}>
+          <p className={styles.welcomeSubtitle}>
+            Model semantic capabilities, evaluate technology trade-offs, and design cloud-native architectures with deterministic validation and AI assistance.
+          </p>
+
+          <div className={styles.welcomeCreateCard}>
+            <div className={styles.welcomeCreateHeader}>
+              <h3>Create Blank Architecture</h3>
+              <p>Start a new system design on a blank canvas</p>
+            </div>
             <CreateArchitectureForm
               className={styles.welcomeCreateForm}
+              placeholder="e.g. Distributed Order Management, AI RAG Pipeline..."
+              submitLabel="Create Blank System →"
               onCreate={async (name) => {
                 await createArchitecture(name);
               }}
             />
           </div>
 
-          <h2 className={styles.welcomeTemplatesHeading}>Choose a template</h2>
-          <div className={styles.welcomeTemplatesGrid}>
-            {ARCHITECTURE_TEMPLATES.map((tmpl) => (
-              <button
-                key={tmpl.id}
-                className={styles.welcomeTemplateCard}
-                onClick={() => void handleLoadTemplate(tmpl)}
-                type="button"
-              >
-                <strong>{tmpl.name}</strong>
-              </button>
-            ))}
+          <div className={styles.welcomeTemplatesSection}>
+            <div className={styles.welcomeTemplatesHeader}>
+              <h2>Or start from a curated template</h2>
+              <p>Production-grade architectural patterns ready to explore and customize</p>
+            </div>
+            <div className={styles.welcomeTemplatesGrid}>
+              {ARCHITECTURE_TEMPLATES.map((tmpl) => (
+                <button
+                  key={tmpl.id}
+                  className={styles.welcomeTemplateCard}
+                  onClick={() => void handleLoadTemplate(tmpl)}
+                  type="button"
+                >
+                  <div className={styles.welcomeTemplateCardTop}>
+                    <span
+                      className={styles.templateCategoryBadge}
+                      data-category={tmpl.category.toLowerCase().replace(/[^a-z0-9]+/g, "-")}
+                    >
+                      {tmpl.category}
+                    </span>
+                    <span className={styles.templateArrowAffordance}>Use Template →</span>
+                  </div>
+                  <strong className={styles.welcomeTemplateTitle}>{tmpl.name}</strong>
+                  <p className={styles.welcomeTemplateDesc}>{tmpl.description}</p>
+                  <div className={styles.welcomeTemplateMeta}>
+                    <span className={styles.welcomeTemplateMetaBadge}>
+                      {tmpl.request.components.length} components
+                    </span>
+                    <span className={styles.welcomeTemplateMetaBadge}>
+                      {tmpl.request.connections.length} connections
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.welcomeFeaturesRow}>
+            <div className={styles.welcomeFeaturePill}>
+              <span className={styles.welcomeFeatureIcon}>💾</span>
+              <span>Local-First (IndexedDB)</span>
+            </div>
+            <div className={styles.welcomeFeaturePill}>
+              <span className={styles.welcomeFeatureIcon}>🤖</span>
+              <span>WebMCP AI Agent Ready</span>
+            </div>
+            <div className={styles.welcomeFeaturePill}>
+              <span className={styles.welcomeFeatureIcon}>⚖️</span>
+              <span>Evidence-Based Resolution</span>
+            </div>
+            <div className={styles.welcomeFeaturePill}>
+              <span className={styles.welcomeFeatureIcon}>🛡️</span>
+              <span>Deterministic Validation</span>
+            </div>
           </div>
         </div>
       </main>

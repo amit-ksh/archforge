@@ -14,16 +14,24 @@ import styles from "./workspace.module.css";
 
 interface CreateArchitectureFormProps {
   readonly className?: string;
+  readonly inputLabel?: string;
   readonly onCancel?: () => void;
   readonly onCreate: (name: string) => Promise<void>;
+  readonly placeholder?: string;
+  readonly submitLabel?: string;
+  readonly submitSize?: "default" | "compact";
 }
 
 const INITIAL_DRAFT: ArchitectureDraft = { name: "" };
 
 export function CreateArchitectureForm({
   className,
+  inputLabel = "Architecture Name",
   onCancel,
   onCreate,
+  placeholder = "e.g. Distributed Payment Gateway",
+  submitLabel = "Create",
+  submitSize = "default",
 }: CreateArchitectureFormProps) {
   const [draft, setDraft] = useState<ArchitectureDraft>(INITIAL_DRAFT);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -62,20 +70,20 @@ export function CreateArchitectureForm({
       ) : null}
       <Input
         error={errors.name}
-        label="Name"
+        label={inputLabel}
         onChange={(event) =>
           setDraft((current) => ({ ...current, name: event.target.value }))
         }
-        placeholder="Customer platform"
+        placeholder={placeholder}
         required
         value={draft.name}
       />
       <div className={styles.formActions}>
-        <Button busy={saving} type="submit">
-          Create
+        <Button busy={saving} size={submitSize} type="submit">
+          {submitLabel}
         </Button>
         {onCancel ? (
-          <Button disabled={saving} onClick={onCancel} variant="secondary">
+          <Button disabled={saving} onClick={onCancel} size={submitSize} variant="secondary">
             Cancel
           </Button>
         ) : null}
