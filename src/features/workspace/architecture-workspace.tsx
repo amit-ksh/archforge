@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useArchitectureWorkspace } from "@/app/architecture-provider";
 import type { ExportFormat } from "@/application/contracts";
 import { ArchitectureCanvas } from "@/components/canvas";
-import { BrandMark, Button, Dialog, ErrorState, Skeleton } from "@/components/ui";
+import { Button, Dialog, ErrorState, Skeleton } from "@/components/ui";
 import type { EntityId } from "@/domain/architecture";
 import type { EditorTool } from "@/features/editor";
 
@@ -230,17 +230,15 @@ export function ArchitectureWorkspace() {
       <main className={styles.welcomeViewport} id="main-content">
         <div className={styles.welcomeHero}>
           <div className={styles.welcomeBadge}>
-            <span className={styles.welcomeBadgeSparkle} aria-hidden="true">✦</span>
+            <span className={styles.welcomeBadgeSparkle} aria-hidden="true">
+              ✦
+            </span>
             <span>Local-First WebMCP Architecture Studio</span>
           </div>
 
           <div className={styles.welcomeBrand}>
-            <BrandMark size={48} />
             <h1>ArchForge</h1>
           </div>
-          <p className={styles.welcomeSubtitle}>
-            Model semantic capabilities, evaluate technology trade-offs, and design cloud-native architectures with deterministic validation and AI assistance.
-          </p>
 
           <div className={styles.welcomeCreateCard}>
             <div className={styles.welcomeCreateHeader}>
@@ -260,7 +258,10 @@ export function ArchitectureWorkspace() {
           <div className={styles.welcomeTemplatesSection}>
             <div className={styles.welcomeTemplatesHeader}>
               <h2>Or start from a curated template</h2>
-              <p>Production-grade architectural patterns ready to explore and customize</p>
+              <p>
+                Production-grade architectural patterns ready to explore and
+                customize
+              </p>
             </div>
             <div className={styles.welcomeTemplatesGrid}>
               {ARCHITECTURE_TEMPLATES.map((tmpl) => (
@@ -273,14 +274,22 @@ export function ArchitectureWorkspace() {
                   <div className={styles.welcomeTemplateCardTop}>
                     <span
                       className={styles.templateCategoryBadge}
-                      data-category={tmpl.category.toLowerCase().replace(/[^a-z0-9]+/g, "-")}
+                      data-category={tmpl.category
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, "-")}
                     >
                       {tmpl.category}
                     </span>
-                    <span className={styles.templateArrowAffordance}>Use Template →</span>
+                    <span className={styles.templateArrowAffordance}>
+                      Use Template →
+                    </span>
                   </div>
-                  <strong className={styles.welcomeTemplateTitle}>{tmpl.name}</strong>
-                  <p className={styles.welcomeTemplateDesc}>{tmpl.description}</p>
+                  <strong className={styles.welcomeTemplateTitle}>
+                    {tmpl.name}
+                  </strong>
+                  <p className={styles.welcomeTemplateDesc}>
+                    {tmpl.description}
+                  </p>
                   <div className={styles.welcomeTemplateMeta}>
                     <span className={styles.welcomeTemplateMetaBadge}>
                       {tmpl.request.components.length} components
@@ -302,14 +311,6 @@ export function ArchitectureWorkspace() {
             <div className={styles.welcomeFeaturePill}>
               <span className={styles.welcomeFeatureIcon}>🤖</span>
               <span>WebMCP AI Agent Ready</span>
-            </div>
-            <div className={styles.welcomeFeaturePill}>
-              <span className={styles.welcomeFeatureIcon}>⚖️</span>
-              <span>Evidence-Based Resolution</span>
-            </div>
-            <div className={styles.welcomeFeaturePill}>
-              <span className={styles.welcomeFeatureIcon}>🛡️</span>
-              <span>Deterministic Validation</span>
             </div>
           </div>
         </div>

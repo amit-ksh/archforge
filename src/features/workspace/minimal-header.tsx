@@ -1,8 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type KeyboardEvent,
+} from "react";
 import type { Architecture, EntityId } from "@/domain/architecture";
-import { BrandMark } from "@/components/ui";
 
 import styles from "./workspace.module.css";
 
@@ -86,7 +91,6 @@ export function MinimalHeader({
       {/* Left section: Brand + Architecture Title + Switcher */}
       <div className={styles.headerLeft}>
         <div className={styles.headerBrand}>
-          <BrandMark size={22} />
           <span className={styles.brandName}>ArchForge</span>
         </div>
 
@@ -112,7 +116,14 @@ export function MinimalHeader({
               type="button"
             >
               <span className={styles.headerNameText}>{architecture.name}</span>
-              <svg fill="none" height="12" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="12">
+              <svg
+                fill="none"
+                height="12"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                width="12"
+              >
                 <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
               </svg>
             </button>
@@ -124,7 +135,9 @@ export function MinimalHeader({
           <select
             aria-label="Switch system"
             className={styles.headerArchSelect}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => void onLoadArchitecture(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              void onLoadArchitecture(e.target.value)
+            }
             value={architecture.id}
           >
             {architectures.map((arch) => (
@@ -135,7 +148,10 @@ export function MinimalHeader({
           </select>
         ) : null}
 
-        <span className={styles.headerRevisionBadge} title="Current revision saved locally in IndexedDB">
+        <span
+          className={styles.headerRevisionBadge}
+          title="Current revision saved locally in IndexedDB"
+        >
           r{architecture.revision}
         </span>
       </div>
@@ -149,7 +165,14 @@ export function MinimalHeader({
           title="View supported WebMCP protocol tools"
           type="button"
         >
-          <svg fill="none" height="13" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="13">
+          <svg
+            fill="none"
+            height="13"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            width="13"
+          >
             <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
           </svg>
           <span>WebMCP Tools</span>
@@ -162,7 +185,14 @@ export function MinimalHeader({
           title="Keyboard shortcuts (?)"
           type="button"
         >
-          <svg fill="none" height="14" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="14">
+          <svg
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            width="14"
+          >
             <circle cx="12" cy="12" r="10" />
             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
             <line x1="12" x2="12.01" y1="17" y2="17" />
@@ -176,7 +206,14 @@ export function MinimalHeader({
           title="Toggle Inspector drawer (I)"
           type="button"
         >
-          <svg fill="none" height="14" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="14">
+          <svg
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            width="14"
+          >
             <rect height="18" rx="2" width="18" x="3" y="3" />
             <line x1="15" x2="15" y1="3" y2="21" />
           </svg>
@@ -190,7 +227,14 @@ export function MinimalHeader({
           title="Export as PNG, SVG, or JSON"
           type="button"
         >
-          <svg fill="none" height="14" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="14">
+          <svg
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            width="14"
+          >
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
           </svg>
           <span>Export</span>
@@ -204,7 +248,14 @@ export function MinimalHeader({
             onClick={() => setMenuOpen(!menuOpen)}
             type="button"
           >
-            <svg fill="none" height="16" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="16">
+            <svg
+              fill="none"
+              height="16"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              width="16"
+            >
               <circle cx="12" cy="12" r="1" />
               <circle cx="12" cy="5" r="1" />
               <circle cx="12" cy="19" r="1" />
@@ -212,7 +263,9 @@ export function MinimalHeader({
           </button>
 
           {menuOpen ? (
-            <div className={`${styles.headerDropdownMenu} ${styles.headerDropdownMenuRight}`}>
+            <div
+              className={`${styles.headerDropdownMenu} ${styles.headerDropdownMenuRight}`}
+            >
               <button
                 className={styles.dropdownMenuItemSimple}
                 onClick={() => {

@@ -3,7 +3,7 @@
 import type { ChangeEvent } from "react";
 
 import type { ExportFormat } from "@/application/contracts";
-import { Badge, BrandMark, Button, Toolbar } from "@/components/ui";
+import { Badge, Button, Toolbar } from "@/components/ui";
 import type { Architecture, EntityId } from "@/domain/architecture";
 
 import styles from "./workspace.module.css";
@@ -50,7 +50,6 @@ export function ArchitectureToolbar({
   return (
     <Toolbar aria-label="Architecture commands" className={styles.commandBar}>
       <div className={styles.brand}>
-        <BrandMark size={24} />
         <div>
           <strong>ArchForge</strong>
           <span>Architecture workspace</span>
@@ -74,7 +73,11 @@ export function ArchitectureToolbar({
       <Badge tone={validationCount > 0 ? "warning" : "success"}>
         {validationCount} {validationCount === 1 ? "issue" : "issues"}
       </Badge>
-      <div className={styles.exportControl} role="group" aria-label="Export architecture">
+      <div
+        className={styles.exportControl}
+        role="group"
+        aria-label="Export architecture"
+      >
         <select
           aria-label="Export format"
           disabled={exporting}
@@ -102,7 +105,11 @@ export function ArchitectureToolbar({
             <Button onClick={onOpenInputs} size="compact" variant="secondary">
               Inputs
             </Button>
-            <Button onClick={onOpenInspector} size="compact" variant="secondary">
+            <Button
+              onClick={onOpenInspector}
+              size="compact"
+              variant="secondary"
+            >
               Inspector
             </Button>
           </>
