@@ -30,7 +30,7 @@ interface ComponentInspectorProps {
   readonly technologies: readonly TechnologyDefinition[];
   readonly dispatchCommand: (command: ArchitectureCommand) => Promise<void>;
   readonly onDeleted: () => void;
-  readonly onSwitchTab?: (tab: "component" | "resolution" | "connections" | "evidence" | "signals") => void;
+  readonly onSwitchTab?: (tab: "component" | "resolution" | "connections" | "evidence") => void;
   readonly selectedComponentId: EntityId | null;
 }
 

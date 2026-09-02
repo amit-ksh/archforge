@@ -2,15 +2,12 @@
 
 import { useState } from "react";
 import { useArchitectureWorkspace } from "@/app/architecture-provider";
-import { Badge } from "@/components/ui";
 import type { EntityId } from "@/domain/architecture";
-import { ActivityPanel } from "@/features/activity";
 import { RequirementsWorkspace } from "@/features/requirements";
 import { ResolutionWorkspace } from "@/features/resolution";
 
 import { ComponentInspector } from "./component-inspector";
 import { ConnectionEditor } from "./connection-editor";
-import { ValidationPanel } from "./validation-panel";
 import styles from "./workspace.module.css";
 
 interface FloatingInspectorProps {
@@ -24,8 +21,7 @@ type InspectorTab =
   | "component"
   | "resolution"
   | "connections"
-  | "evidence"
-  | "signals";
+  | "evidence";
 
 export function FloatingInspector({
   open,
@@ -40,10 +36,6 @@ export function FloatingInspector({
     dispatchCommand,
     nextId,
     validationIssues,
-    validationLoading,
-    validationError,
-    refreshValidation,
-    activityStore,
   } = useArchitectureWorkspace();
 
   const [activeTab, setActiveTab] = useState<InspectorTab>("component");
@@ -53,17 +45,9 @@ export function FloatingInspector({
 
   if (!open || !architecture) return null;
 
-  const componentIds = new Set(architecture.components.map((c) => c.id));
   const selectedComponent = architecture.components.find(
     (c) => c.id === selectedComponentId,
   );
-  const navigableEntityIds = new Set([
-    architecture.id,
-    ...architecture.requirements.map((r) => r.id),
-    ...architecture.constraints.map((c) => c.id),
-    ...architecture.components.map((c) => c.id),
-    ...architecture.connections.map((c) => c.id),
-  ]);
 
   return (
     <aside
@@ -85,11 +69,6 @@ export function FloatingInspector({
               </span>
             )}
           </div>
-          {/* {validationIssues.length > 0 ? (
-            <Badge tone="warning">{validationIssues.length} issues</Badge>
-          ) : (
-            <Badge tone="success">Valid</Badge>
-          )} */}
         </div>
         <button
           aria-label="Close inspector"
@@ -112,7 +91,6 @@ export function FloatingInspector({
             { id: "resolution", label: "Resolution" },
             { id: "connections", label: "Connections" },
             { id: "evidence", label: "Evidence" },
-            { id: "signals", label: "Signals" },
           ] as const
         ).map((tab) => (
           <button
@@ -179,39 +157,8 @@ export function FloatingInspector({
               dispatchCommand={dispatchCommand}
               issues={validationIssues}
               nextId={nextId}
-              onInspectIssue={() => setActiveTab("signals")}
+              onInspectIssue={() => {}}
               section={evidenceSection}
-            />
-          </div>
-        )}
-
-        {activeTab === "signals" && (
-          <div className={styles.signalsSection}>
-            <h4>Deterministic Validation</h4>
-            <ValidationPanel
-              architectureComponentIds={componentIds}
-              error={validationError?.message ?? null}
-              issues={validationIssues}
-              loading={validationLoading}
-              onNavigate={(id) => {
-                onSelectComponent(id);
-                setActiveTab("component");
-              }}
-              onRetry={refreshValidation}
-            />
-
-            <div className={styles.signalsDivider} />
-
-            <h4>WebMCP Protocol Activity</h4>
-            <ActivityPanel
-              entityIds={navigableEntityIds}
-              onNavigate={(id) => {
-                if (componentIds.has(id)) {
-                  onSelectComponent(id);
-                  setActiveTab("component");
-                }
-              }}
-              store={activityStore}
             />
           </div>
         )}

@@ -26,7 +26,7 @@ const INITIAL_DRAFT: ArchitectureDraft = { name: "" };
 
 export function CreateArchitectureForm({
   className,
-  inputLabel = "Architecture Name",
+  inputLabel = "System Name",
   onCancel,
   onCreate,
   placeholder = "e.g. Distributed Payment Gateway",
@@ -56,7 +56,7 @@ export function CreateArchitectureForm({
       setRequestError(
         cause instanceof Error
           ? cause.message
-          : "The architecture could not be created.",
+          : "The system could not be created.",
       );
     } finally {
       setSaving(false);
@@ -66,7 +66,7 @@ export function CreateArchitectureForm({
   return (
     <form className={[styles.inspectorForm, className].filter(Boolean).join(" ")} onSubmit={submit}>
       {requestError ? (
-        <ErrorState message={requestError} title="Architecture not created" />
+        <ErrorState message={requestError} title="System not created" />
       ) : null}
       <Input
         error={errors.name}

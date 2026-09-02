@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ArchForge">
-  <rect width="64" height="64" rx="12" fill="#255bb5"/>
-  <path d="M15 46 28 17h8l13 29h-9l-2.5-6H26.2L24 46Zm14-13h5.7L32 25.5Z" fill="#f8fbff"/>
-  <path d="M42 17h8v8h-8z" fill="#67d5c8"/>
+  <rect width="64" height="64" rx="14" fill="#090d16"/>
+  <path d="M 9 27.5 H 18 V 18.5 H 27 V 9.5 H 37 V 27.5 H 55 V 36.5 H 46 V 45.5 H 37 V 54.5 H 27 V 36.5 H 9 V 27.5 Z" fill="#ffffff"/>
 </svg>
+

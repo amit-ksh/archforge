@@ -3,7 +3,7 @@
 import type { ChangeEvent } from "react";
 
 import type { ExportFormat } from "@/application/contracts";
-import { Badge, Button, Toolbar } from "@/components/ui";
+import { Badge, BrandMark, Button, Toolbar } from "@/components/ui";
 import type { Architecture, EntityId } from "@/domain/architecture";
 
 import styles from "./workspace.module.css";
@@ -50,9 +50,7 @@ export function ArchitectureToolbar({
   return (
     <Toolbar aria-label="Architecture commands" className={styles.commandBar}>
       <div className={styles.brand}>
-        <span className={styles.brandMark} aria-hidden="true">
-          AF
-        </span>
+        <BrandMark size={24} />
         <div>
           <strong>ArchForge</strong>
           <span>Architecture workspace</span>

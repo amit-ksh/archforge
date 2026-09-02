@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from "react";
 import type { Architecture, EntityId } from "@/domain/architecture";
+import { BrandMark } from "@/components/ui";
 
 import styles from "./workspace.module.css";
 
@@ -85,7 +86,7 @@ export function MinimalHeader({
       {/* Left section: Brand + Architecture Title + Switcher */}
       <div className={styles.headerLeft}>
         <div className={styles.headerBrand}>
-          <span className={styles.brandIcon} aria-hidden="true">AF</span>
+          <BrandMark size={22} />
           <span className={styles.brandName}>ArchForge</span>
         </div>
 
@@ -101,13 +102,13 @@ export function MinimalHeader({
               onKeyDown={handleNameKeyDown}
               ref={nameInputRef}
               value={nameDraft}
-              placeholder="Architecture name..."
+              placeholder="System name..."
             />
           ) : (
             <button
               className={styles.headerNameBtn}
               onClick={() => setIsEditingName(true)}
-              title="Click to rename architecture"
+              title="Click to rename system"
               type="button"
             >
               <span className={styles.headerNameText}>{architecture.name}</span>
@@ -121,7 +122,7 @@ export function MinimalHeader({
         {/* Architecture Switcher */}
         {architectures.length > 1 ? (
           <select
-            aria-label="Switch architecture"
+            aria-label="Switch system"
             className={styles.headerArchSelect}
             onChange={(e: ChangeEvent<HTMLSelectElement>) => void onLoadArchitecture(e.target.value)}
             value={architecture.id}
@@ -220,7 +221,7 @@ export function MinimalHeader({
                 }}
                 type="button"
               >
-                New Architecture
+                New System
               </button>
               <button
                 className={`${styles.dropdownMenuItemSimple} ${styles.dropdownMenuItemDanger}`}

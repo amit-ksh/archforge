@@ -251,7 +251,7 @@ export function ResolutionWorkspace({
                 <div className={styles.panelHeader}>
                   <div>
                     <h3>{LEVEL_PRESENTATION[kind].label} candidates</h3>
-                    <p>Compare current evidence and tradeoffs before applying.</p>
+                    <p>Compare current evidence and tradeoffs before using.</p>
                   </div>
                   {selectedId ? (
                     <Button
@@ -337,19 +337,11 @@ export function ResolutionWorkspace({
                         >
                           <div className={styles.candidateHeader}>
                             <div>
-                              <div className={styles.candidateBadges}>
-                                {index === 0 ? (
-                                  <Badge tone="success">Recommended</Badge>
-                                ) : (
-                                  <Badge tone="neutral">Alternative</Badge>
-                                )}
-                                {isSelected ? (
+                              {isSelected ? (
+                                <div className={styles.candidateBadges}>
                                   <Badge tone="info">Selected</Badge>
-                                ) : null}
-                                <Badge tone={candidate.scoreBand === "strong" ? "success" : candidate.scoreBand === "moderate" ? "warning" : "neutral"}>
-                                  {candidate.scoreBand} evidence
-                                </Badge>
-                              </div>
+                                </div>
+                              ) : null}
                               <h4>{candidate.label}</h4>
                               <code>{candidate.candidateId}</code>
                             </div>
@@ -377,7 +369,7 @@ export function ResolutionWorkspace({
                               onClick={() => void apply(candidate.candidateId)}
                               size="compact"
                             >
-                              {isSelected ? "Applied" : `Apply ${LEVEL_PRESENTATION[kind].label.toLowerCase()}`}
+                              {isSelected ? "In Use" : `Use ${LEVEL_PRESENTATION[kind].label.toLowerCase()}`}
                             </Button>
                           </div>
                           {isOpen ? <CandidateEvidence candidate={candidate} /> : null}

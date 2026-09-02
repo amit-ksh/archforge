@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useArchitectureWorkspace } from "@/app/architecture-provider";
 import type { ExportFormat } from "@/application/contracts";
 import { ArchitectureCanvas } from "@/components/canvas";
-import { Button, Dialog, ErrorState, Skeleton } from "@/components/ui";
+import { BrandMark, Button, Dialog, ErrorState, Skeleton } from "@/components/ui";
 import type { EntityId } from "@/domain/architecture";
 import type { EditorTool } from "@/features/editor";
 
@@ -235,9 +235,7 @@ export function ArchitectureWorkspace() {
           </div>
 
           <div className={styles.welcomeBrand}>
-            <span className={styles.brandIconLarge} aria-hidden="true">
-              AF
-            </span>
+            <BrandMark size={48} />
             <h1>ArchForge</h1>
           </div>
           <p className={styles.welcomeSubtitle}>
@@ -246,13 +244,13 @@ export function ArchitectureWorkspace() {
 
           <div className={styles.welcomeCreateCard}>
             <div className={styles.welcomeCreateHeader}>
-              <h3>Create Blank Architecture</h3>
+              <h3>Create System</h3>
               <p>Start a new system design on a blank canvas</p>
             </div>
             <CreateArchitectureForm
               className={styles.welcomeCreateForm}
               placeholder="e.g. Distributed Order Management, AI RAG Pipeline..."
-              submitLabel="Create Blank System →"
+              submitLabel="Create System →"
               onCreate={async (name) => {
                 await createArchitecture(name);
               }}
