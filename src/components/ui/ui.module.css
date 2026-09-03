@@ -79,6 +79,21 @@
   box-shadow: inset 0 0 0 999px rgb(0 0 0 / 0.12);
 }
 
+.buttonLink {
+  background: transparent;
+  border-color: transparent;
+  color: var(--interactive);
+  min-height: auto;
+  padding: 0;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.buttonLink:hover:not(:disabled) {
+  color: var(--interactive-hover);
+}
+
 .button:disabled,
 .iconButton:disabled,
 .dialogClose:disabled {

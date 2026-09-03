@@ -8,6 +8,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import type { Architecture, EntityId } from "@/domain/architecture";
+import { BrandMark } from "@/components/ui";
 
 import styles from "./workspace.module.css";
 
@@ -91,6 +92,7 @@ export function MinimalHeader({
       {/* Left section: Brand + Architecture Title + Switcher */}
       <div className={styles.headerLeft}>
         <div className={styles.headerBrand}>
+          <BrandMark size={20} />
           <span className={styles.brandName}>ArchForge</span>
         </div>
 

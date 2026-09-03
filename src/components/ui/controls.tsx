@@ -11,7 +11,7 @@ import {
 import styles from "./ui.module.css";
 import { cx } from "./utils";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "link";
 type ButtonSize = "default" | "compact";
 
 const buttonVariantClass: Record<ButtonVariant, string> = {
@@ -19,6 +19,7 @@ const buttonVariantClass: Record<ButtonVariant, string> = {
   secondary: styles.buttonSecondary,
   ghost: styles.buttonGhost,
   danger: styles.buttonDanger,
+  link: styles.buttonLink,
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useArchitectureWorkspace } from "@/app/architecture-provider";
 import type { ExportFormat } from "@/application/contracts";
 import { ArchitectureCanvas } from "@/components/canvas";
-import { Button, Dialog, ErrorState, Skeleton } from "@/components/ui";
+import { BrandLogo, Button, Dialog, ErrorState, Skeleton } from "@/components/ui";
 import type { EntityId } from "@/domain/architecture";
 import type { EditorTool } from "@/features/editor";
 
@@ -48,6 +48,9 @@ export function ArchitectureWorkspace() {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [newArchitectureOpen, setNewArchitectureOpen] = useState(false);
+  const [templatesModalOpen, setTemplatesModalOpen] = useState(false);
+  const [directSystemName, setDirectSystemName] = useState("");
+  const [directCreating, setDirectCreating] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [recovering, setRecovering] = useState(false);
@@ -228,92 +231,243 @@ export function ArchitectureWorkspace() {
   if (!architecture) {
     return (
       <main className={styles.welcomeViewport} id="main-content">
-        <div className={styles.welcomeHero}>
-          <div className={styles.welcomeBadge}>
-            <span className={styles.welcomeBadgeSparkle} aria-hidden="true">
-              ✦
-            </span>
-            <span>Local-First WebMCP Architecture Studio</span>
+        {/* Minimal Waveframe-style Navbar */}
+        <header className={styles.welcomeNavbar}>
+          <div className={styles.welcomeNavLeft}>
+            <BrandLogo size={24} wordmarkSize={16} />
+            {architectures.length > 0 ? (
+              <select
+                aria-label="Open saved system"
+                className={styles.welcomeArchSelect}
+                defaultValue=""
+                onChange={(e) => {
+                  if (e.target.value) {
+                    void loadArchitecture(e.target.value);
+                  }
+                }}
+              >
+                <option disabled value="">
+                  Open saved system ({architectures.length})...
+                </option>
+                {architectures.map((arch) => (
+                  <option key={arch.id} value={arch.id}>
+                    {arch.name}
+                  </option>
+                ))}
+              </select>
+            ) : null}
           </div>
 
-          <div className={styles.welcomeBrand}>
-            <h1>ArchForge</h1>
+          <div className={styles.welcomeNavRight}>
+            <button
+              className={styles.welcomeNavBtn}
+              onClick={() => setWebMcpOpen(true)}
+              title="Inspect WebMCP tools and status"
+              type="button"
+            >
+              <span className={styles.navBtnPrompt}>&gt;_</span>
+              <span>WebMCP Tools</span>
+            </button>
           </div>
+        </header>
 
-          <div className={styles.welcomeCreateCard}>
-            <div className={styles.welcomeCreateHeader}>
-              <h3>Create System</h3>
-              <p>Start a new system design on a blank canvas</p>
+        {/* Centered Minimal Hero */}
+        <div className={styles.welcomeMain}>
+          <div className={styles.welcomeHero}>
+            {/* Squircle Card with Blue Outline Architecture Icon */}
+            <div className={styles.welcomeIconCard} aria-hidden="true">
+              <svg
+                fill="none"
+                height="34"
+                stroke="#2563eb"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.8"
+                viewBox="0 0 24 24"
+                width="34"
+              >
+                <rect height="18" rx="3" width="18" x="3" y="3" />
+                <path d="M3 9h18" />
+                <path d="M9 21V9" />
+                <path d="M14 14h3" />
+                <path d="M14 17h2" />
+              </svg>
             </div>
-            <CreateArchitectureForm
-              className={styles.welcomeCreateForm}
-              placeholder="e.g. Distributed Order Management, AI RAG Pipeline..."
-              submitLabel="Create System →"
-              onCreate={async (name) => {
-                await createArchitecture(name);
+
+            <h1 className={styles.welcomeTitle}>
+              Create a system to start designing
+            </h1>
+            <p className={styles.welcomeSubtitle}>
+              Start with a clean canvas or explore battle-tested architecture
+              patterns to begin modeling.
+            </p>
+
+            {/* Direct Input Form */}
+            <form
+              className={styles.welcomeDirectForm}
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const trimmed = directSystemName.trim();
+                if (!trimmed) return;
+                setDirectCreating(true);
+                try {
+                  await createArchitecture(trimmed);
+                } finally {
+                  setDirectCreating(false);
+                }
               }}
-            />
-          </div>
-
-          <div className={styles.welcomeTemplatesSection}>
-            <div className={styles.welcomeTemplatesHeader}>
-              <h2>Or start from a curated template</h2>
-              <p>
-                Production-grade architectural patterns ready to explore and
-                customize
-              </p>
-            </div>
-            <div className={styles.welcomeTemplatesGrid}>
-              {ARCHITECTURE_TEMPLATES.map((tmpl) => (
-                <button
-                  key={tmpl.id}
-                  className={styles.welcomeTemplateCard}
-                  onClick={() => void handleLoadTemplate(tmpl)}
-                  type="button"
+            >
+              <div className={styles.welcomeInputWrapper}>
+                <svg
+                  aria-hidden="true"
+                  className={styles.welcomeInputIcon}
+                  fill="none"
+                  height="16"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  width="16"
                 >
-                  <div className={styles.welcomeTemplateCardTop}>
-                    <span
-                      className={styles.templateCategoryBadge}
-                      data-category={tmpl.category
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, "-")}
-                    >
-                      {tmpl.category}
-                    </span>
-                    <span className={styles.templateArrowAffordance}>
-                      Use Template →
-                    </span>
-                  </div>
-                  <strong className={styles.welcomeTemplateTitle}>
-                    {tmpl.name}
-                  </strong>
-                  <p className={styles.welcomeTemplateDesc}>
-                    {tmpl.description}
-                  </p>
-                  <div className={styles.welcomeTemplateMeta}>
-                    <span className={styles.welcomeTemplateMetaBadge}>
-                      {tmpl.request.components.length} components
-                    </span>
-                    <span className={styles.welcomeTemplateMetaBadge}>
-                      {tmpl.request.connections.length} connections
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg>
+                <input
+                  autoFocus
+                  className={styles.welcomeDirectInput}
+                  onChange={(e) => setDirectSystemName(e.target.value)}
+                  placeholder="Enter system name (e.g. Distributed Order Platform)..."
+                  required
+                  type="text"
+                  value={directSystemName}
+                />
+                <Button
+                  busy={directCreating}
+                  disabled={!directSystemName.trim()}
+                  size="compact"
+                  type="submit"
+                  variant="primary"
+                >
+                  Create System
+                </Button>
+              </div>
+            </form>
 
-          <div className={styles.welcomeFeaturesRow}>
-            <div className={styles.welcomeFeaturePill}>
-              <span className={styles.welcomeFeatureIcon}>💾</span>
-              <span>Local-First (IndexedDB)</span>
+            {/* OR Option Section with Link Variant Button */}
+            <div className={styles.welcomeOrSection}>
+              <span className={styles.welcomeOrDividerLine} />
+              <span className={styles.welcomeOrText}>or</span>
+              <span className={styles.welcomeOrDividerLine} />
             </div>
-            <div className={styles.welcomeFeaturePill}>
-              <span className={styles.welcomeFeatureIcon}>🤖</span>
-              <span>WebMCP AI Agent Ready</span>
+
+            <div className={styles.welcomeOrAction}>
+              <Button
+                className={styles.welcomeTemplateLinkBtn}
+                onClick={() => setTemplatesModalOpen(true)}
+                variant="link"
+              >
+                Browse curated templates →
+              </Button>
+            </div>
+
+            {/* Bottom Minimal Feature Badges */}
+            <div className={styles.welcomePillsRow}>
+              <div className={styles.welcomePill}>
+                <span className={styles.pillIconAmber} aria-hidden="true">
+                  ⚡
+                </span>
+                <span>Local-First (IndexedDB)</span>
+              </div>
+
+              <button
+                className={styles.welcomePillButton}
+                onClick={() => setWebMcpOpen(true)}
+                title="View WebMCP protocol assistance"
+                type="button"
+              >
+                <span className={styles.pillIconCyan} aria-hidden="true">
+                  🤖
+                </span>
+                <span>WebMCP Agent Ready</span>
+              </button>
             </div>
           </div>
         </div>
+
+        {/* New Architecture Dialog */}
+        <Dialog
+          description="Start a new architecture on a blank canvas."
+          onOpenChange={setNewArchitectureOpen}
+          open={newArchitectureOpen}
+          title="Create new system"
+        >
+          <CreateArchitectureForm
+            onCancel={() => setNewArchitectureOpen(false)}
+            onCreate={async (name) => {
+              setSelectedComponentId(null);
+              await createArchitecture(name);
+              setNewArchitectureOpen(false);
+            }}
+          />
+        </Dialog>
+
+        {/* Curated Templates Dialog */}
+        <Dialog
+          className={styles.templatesDialog}
+          description="Select a production-grade architecture pattern to immediately initialize your workspace."
+          onOpenChange={setTemplatesModalOpen}
+          open={templatesModalOpen}
+          title="Curated Architecture Templates"
+        >
+          <div className={styles.templateDialogGrid}>
+            {ARCHITECTURE_TEMPLATES.map((tmpl) => (
+              <button
+                key={tmpl.id}
+                className={styles.welcomeTemplateCard}
+                onClick={async () => {
+                  setTemplatesModalOpen(false);
+                  await handleLoadTemplate(tmpl);
+                }}
+                type="button"
+              >
+                <div className={styles.welcomeTemplateCardTop}>
+                  <span
+                    className={styles.templateCategoryBadge}
+                    data-category={tmpl.category
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, "-")}
+                  >
+                    {tmpl.category}
+                  </span>
+                  <span className={styles.templateArrowAffordance}>
+                    Use Template →
+                  </span>
+                </div>
+                <strong className={styles.welcomeTemplateTitle}>
+                  {tmpl.name}
+                </strong>
+                <p className={styles.welcomeTemplateDesc}>
+                  {tmpl.description}
+                </p>
+                <div className={styles.welcomeTemplateMeta}>
+                  <span className={styles.welcomeTemplateMetaBadge}>
+                    {tmpl.request.components.length} components
+                  </span>
+                  <span className={styles.welcomeTemplateMetaBadge}>
+                    {tmpl.request.connections.length} connections
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </Dialog>
+
+        {/* WebMCP Tools Modal */}
+        <WebMcpToolsModal
+          onClose={() => setWebMcpOpen(false)}
+          open={webMcpOpen}
+        />
       </main>
     );
   }
